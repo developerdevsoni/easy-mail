@@ -21,7 +21,14 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           title: 'Gmail Auth App',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(primarySwatch: Colors.deepPurple),
+          // theme: ThemeData(primarySwatch: Colors.deepPurple),
+        theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        colorScheme: const ColorScheme.dark(
+        primary: Colors.blueAccent,
+        secondary: Colors.tealAccent,
+        ),
+        ),
           home: child,
         );
       },
