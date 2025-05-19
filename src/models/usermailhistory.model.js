@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
 const userMailHistorySchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  toEmail: { type: String, required: true },
-  subject: String,
-  body: String,
-  templateId: { type: mongoose.Schema.Types.ObjectId, ref: "MailTemplate" },
-  sentAt: { type: Date, default: Date.now }
-}, { timestamps: true });
+   userId: mongoose.Schema.Types.ObjectId,
+   toEmail: String,
+   subject: String,
+   body: String,
+   templateId: mongoose.Schema.Types.ObjectId,
+   sentAt: { type: Date, default: Date.now },
+})
 
-module.exports = mongoose.model("UserMailHistory", userMailHistorySchema);
+module.exports = mongoose.model("UserMailHistory", userMailHistorySchema)
