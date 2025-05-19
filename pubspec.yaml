@@ -40,7 +40,8 @@ dependencies:
   get: ^4.6.6
   flutter_screenutil: ^5.8.4
   smooth_page_indicator: ^1.1.0
-
+  flutter_quill: ^9.0.1
+  file_picker: ^6.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
