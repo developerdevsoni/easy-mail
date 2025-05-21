@@ -1,3 +1,4 @@
+import 'package:easy_mail/pages/home_screen.dart';
 import 'package:easy_mail/pages/intro_screen.dart';
 import 'package:easy_mail/pages/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child:    EmailEditorScreen(templateText: "fafadfsdfsdfsdfasdfasdfasdfasfasdfasdfasdfasdfa"),
+      child:    HomeScreen(),
     );
   }
 }

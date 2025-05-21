@@ -39,7 +39,7 @@ class GoogleLoginPage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     // onPressed: controller.loginWithGoogle,
-                    onPressed: () =>  Get.off(() => HomePage()),
+                    onPressed: () =>  Get.off(() => HomeScreen()),
                     icon: const Icon(Icons.login,color: Colors.white,),
                     label: Text("api check", style: TextStyle(fontSize: 16.sp,color: Colors.white)),
                     style: ElevatedButton.styleFrom(
