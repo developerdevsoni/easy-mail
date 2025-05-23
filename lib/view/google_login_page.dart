@@ -1,4 +1,4 @@
-import 'package:easy_mail/pages/home_screen.dart';
+import 'package:easy_mail/view/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,8 +38,8 @@ class GoogleLoginPage extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    // onPressed: controller.loginWithGoogle,
-                    onPressed: () =>  Get.off(() => HomeScreen()),
+                    onPressed: controller.loginWithGoogle,
+                    // onPressed: () =>  Get.off(() => HomeScreen()),
                     icon: const Icon(Icons.login,color: Colors.white,),
                     label: Text("api check", style: TextStyle(fontSize: 16.sp,color: Colors.white)),
                     style: ElevatedButton.styleFrom(

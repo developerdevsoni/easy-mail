@@ -1,10 +1,10 @@
-import 'package:easy_mail/pages/home_screen.dart';
-import 'package:easy_mail/pages/intro_screen.dart';
-import 'package:easy_mail/pages/mailEditor_screen.dart';
+import 'package:easy_mail/view/home_screen.dart';
+import 'package:easy_mail/view/intro_screen.dart';
+import 'package:easy_mail/view/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'pages/google_login_page.dart';
+import 'view/google_login_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child:    HomeScreen(),
+      child:    IntroScreen(),
     );
   }
 }

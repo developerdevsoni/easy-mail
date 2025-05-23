@@ -1,23 +1,30 @@
+import 'package:easy_mail/view/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatelessWidget {
-  final String userImageUrl = "https://via.placeholder.com/150"; // Replace with real image URL or asset
+  final String userImageUrl =
+  //     // "https://via.placeholder.com/150"; // Replace with real image URL or asset
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4YreOWfDX3kK-QLAbAL4ufCPc84ol2MA8Xg&s"; // Replace with real image URL or asset
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.deepPurple.shade400, Colors.deepPurple.shade700],
+                  colors: [
+                    Colors.deepPurple.shade400,
+                    Colors.deepPurple.shade700
+                  ],
                 ),
               ),
-              child: CircleAvatar(
+              // child:Text("abc")
+            child:   CircleAvatar(
                 radius: 40,
                 backgroundImage: NetworkImage(userImageUrl),
               ),
@@ -35,18 +42,19 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      appBar:AppBar(
+      appBar: AppBar(
         title: Text('Mail Sender'),
-    backgroundColor: Colors.deepPurple,
-    leading: Builder(
-    builder: (context) => IconButton(
-    onPressed: () => Scaffold.of(context).openDrawer(),
-    icon: CircleAvatar(
-    backgroundImage: NetworkImage(userImageUrl),
-    ),
-    ),
-    ),
-    ),
+        backgroundColor: Colors.deepPurple,
+        leading: Builder(
+          builder: (context) => IconButton(
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon:
+            CircleAvatar(
+              backgroundImage: NetworkImage(userImageUrl),
+            ),
+          ),
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -59,7 +67,8 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Your Templates", style: Theme.of(context).textTheme.headlineMedium),
+            Text("Your Templates",
+                style: Theme.of(context).textTheme.headlineMedium),
             SizedBox(height: 8),
             SizedBox(
               height: 100,
@@ -67,14 +76,20 @@ class HomeScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemCount: 5, // Replace with dynamic data
                 itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 3,
-                    margin: EdgeInsets.only(right: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Container(
-                      width: 150,
-                      padding: EdgeInsets.all(12),
-                      child: Center(child: Text("Template ${index + 1}")),
+                  return InkWell(
+                    onTap: () {
+                      Get.to(() => const MailEditorScreen());
+                    },
+                    child: Card(
+                      elevation: 3,
+                      margin: EdgeInsets.only(right: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Container(
+                        width: 150,
+                        padding: EdgeInsets.all(12),
+                        child: Center(child: Text("Template ${index + 1}")),
+                      ),
                     ),
                   );
                 },
@@ -87,11 +102,13 @@ class HomeScreen extends StatelessWidget {
                 prefixIcon: Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             SizedBox(height: 20),
-            Text("Global Templates", style: Theme.of(context).textTheme.headlineMedium),
+            Text("Global Templates",
+                style: Theme.of(context).textTheme.headlineMedium),
             SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
@@ -100,7 +117,8 @@ class HomeScreen extends StatelessWidget {
                   return Card(
                     elevation: 2,
                     margin: EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     child: ListTile(
                       leading: Icon(Icons.email_outlined),
                       title: Text('Global Template ${index + 1}'),

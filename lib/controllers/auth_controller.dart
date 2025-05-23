@@ -1,3 +1,4 @@
+import 'package:easy_mail/view/home_screen.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/api_service.dart';
@@ -37,6 +38,7 @@ class AuthController extends GetxController {
       );
 
       Get.snackbar("Login Successful", "Welcome, ${userName.value}");
+      await Get.to(()=>HomeScreen());
     } catch (e) {
       Get.snackbar("Login Error", e.toString());
     } finally {

@@ -9,6 +9,7 @@ android {
     namespace = "com.easyMail.easy_mail"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
