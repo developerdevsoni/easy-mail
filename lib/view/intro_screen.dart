@@ -1,3 +1,4 @@
+import 'package:easy_mail/view/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -40,7 +41,7 @@ class IntroScreen extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             ElevatedButton(
-              onPressed: () => Get.off(() => GoogleLoginPage()),
+              onPressed: () => Get.off(() => HomeScreen()),
               child: Text("Get Started", style: TextStyle(fontSize: 16.sp,color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 48.h),

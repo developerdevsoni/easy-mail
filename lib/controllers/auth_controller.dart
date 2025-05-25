@@ -16,7 +16,7 @@ class AuthController extends GetxController {
   Future<void> loginWithGoogle() async {
     try {
       isLoading.value = true;
-      await _googleSignIn.signOut(); // Ensure fresh login
+      // await _googleSignIn.signOut(); // Ensure fresh login
       final account = await _googleSignIn.signIn();
 
       if (account == null) {
@@ -40,6 +40,8 @@ class AuthController extends GetxController {
       Get.snackbar("Login Successful", "Welcome, ${userName.value}");
       await Get.to(()=>HomeScreen());
     } catch (e) {
+      print( "++++++++++++++++++++++ ${e.toString()}");
+
       Get.snackbar("Login Error", e.toString());
     } finally {
       isLoading.value = false;
