@@ -41,7 +41,7 @@ class IntroScreen extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
             ElevatedButton(
-              onPressed: () => Get.off(() => HomeScreen()),
+              onPressed: () => Get.off(() => GoogleLoginPage()),
               child: Text("Get Started", style: TextStyle(fontSize: 16.sp,color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 48.h),

@@ -1,6 +1,8 @@
+import 'package:easy_mail/controllers/auth_controller.dart';
 import 'package:easy_mail/utils/animatedTextWidget.dart';
 import 'package:easy_mail/view/discoverTemplete_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -9,10 +11,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final AuthController controller = Get.put(AuthController());
   final List<Map<String, String>> yourTemplates = [
     {
       'title': 'Sales follow-up',
-      'subtitle': 'Hi [name], Just wanted to follow up on our previous conversation...',
+      'subtitle':
+          'Hi [name], Just wanted to follow up on our previous conversation...',
     },
     {
       'title': 'New feature announcement',
@@ -36,7 +40,7 @@ Team [Your Company]
 
 CC: product@company.com  
 Date: [Launch Date]
-'''
+''',
     },
     {
       'title': '🎁 Holiday Offer – Limited Time Only!',
@@ -54,7 +58,7 @@ The [Company] Team
 
 CC: marketing@company.com  
 Valid until: Dec 31
-'''
+''',
     },
     {
       'title': '📅 Webinar Reminder – Starts in 1 Hour',
@@ -74,7 +78,7 @@ Emily from [Company]
 
 CC: webinars@company.com  
 Sent: [Today’s Date]
-'''
+''',
     },
     {
       'title': '👋 Welcome Onboard!',
@@ -92,7 +96,7 @@ Customer Success Team
 
 CC: support@company.com  
 Joined on: [Date]
-'''
+''',
     },
     {
       'title': '💬 We’d Love Your Feedback',
@@ -110,7 +114,7 @@ Best,
 
 CC: feedback@company.com  
 Sent on: [Date]
-'''
+''',
     },
     {
       'title': '📦 Shipping Update – Order #[OrderID]',
@@ -128,7 +132,7 @@ Shipping Department
 
 CC: logistics@company.com  
 Shipped: [Date]
-'''
+''',
     },
     {
       'title': '✅ Confirmation – You’re Registered',
@@ -146,11 +150,17 @@ Events Team
 
 CC: events@company.com  
 Registered: [Today’s Date]
-'''
+''',
     },
   ];
 
-  final List<String> filters = ['All', 'Marketing', 'Ecommerce', 'Events', 'Newsletters'];
+  final List<String> filters = [
+    'All',
+    'Marketing',
+    'Ecommerce',
+    'Events',
+    'Newsletters',
+  ];
 
   String selectedFilter = 'All';
 
@@ -159,92 +169,106 @@ Registered: [Today’s Date]
     return Scaffold(
       backgroundColor: const Color(0xFFF3F8F2),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               /// Top Bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CircleAvatar(radius: 20, backgroundColor: Colors.grey[400]),
-                  const Text('Home', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
-                  const Icon(Icons.settings, color: Colors.black54),
+                children: [CircleAvatar(
+                  // radius: 30.r,
+                  backgroundColor: Colors.grey[300],
+                  backgroundImage: controller.photoUrl.value.isNotEmpty
+                      ? NetworkImage(controller.photoUrl.value)
+                      : null,
+                  child: controller.photoUrl.value.isEmpty
+                      ? Icon(Icons.person, size: 30.r, color: Colors.white)
+                      : null,
+                ),
+                  Text(
+                    'Home',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async => await controller.signOutGoogle(),
+                    child: const Icon(Icons.logout, color: Colors.black54),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
-              /// AI Prompt TextField
-              // Container(
-              //   padding: const EdgeInsets.all(12),
-              //   decoration: BoxDecoration(
-              //     color: Colors.white,
-              //     borderRadius: BorderRadius.circular(12),
-              //     boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-              //   ),
-              //   child: TextField(
-              //     maxLines: 4,
-              //     style: const TextStyle(color: Colors.black),
-              //     decoration: const InputDecoration.collapsed(
-              //       hintText: 'Write your prompt to generate with AI...',
-              //     ),
-              //   ),
-              // ),
               TypingPromptField(),
-              const SizedBox(height: 20),
-
-              /// Search Bar
-              // TextField(
-              //   style: const TextStyle(color: Colors.black),
-              //   decoration: InputDecoration(
-              //     hintText: 'Search templates...',
-              //     prefixIcon: const Icon(Icons.search),
-              //     filled: true,
-              //     fillColor: Colors.white,
-              //     contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-              //     border: OutlineInputBorder(
-              //       borderRadius: BorderRadius.circular(12),
-              //       borderSide: BorderSide.none,
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(height: 24),
+              SizedBox(height: 20.h),
 
               /// Your Templates
-              const Text('Your templates',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
-              const SizedBox(height: 12),
-              Column(
-                children: yourTemplates.map((template) {
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(template['title']!,
-                        style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.black)),
-                    subtitle: Text(template['subtitle']!,
-                        style: const TextStyle(color: Colors.black),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis),
-                    trailing: CircleAvatar(radius: 20, backgroundColor: Colors.grey[400]),
-                  );
-                }).toList(),
+              Text(
+                'Your templates',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                  color: Colors.black,
+                ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 12.h),
+              Column(
+                children:
+                    yourTemplates.map((template) {
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          template['title']!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black,
+                          ),
+                        ),
+                        subtitle: Text(
+                          template['subtitle']!,
+                          style: const TextStyle(color: Colors.black),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: CircleAvatar(
+                          radius: 20.r,
+                          backgroundColor: Colors.grey[400],
+                        ),
+                      );
+                    }).toList(),
+              ),
+              SizedBox(height: 20),
 
               /// Discover Global Templates
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Discover global templates',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
+                  Text(
+                    'Discover global templates',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10.sp,
+                      color: Colors.black,
+                    ),
+                  ),
                   TextButton(
                     onPressed: () => Get.to(DiscoverTemplatesPage()),
-                    child:  Text('Discover more',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black)),
+                    child: Text(
+                      'Discover more',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10.sp,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               /// Filter Bar
               SizedBox(
@@ -262,104 +286,120 @@ Registered: [Today’s Date]
                         });
                       },
                       child: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        margin: EdgeInsets.only(right: 8.w),
+                        padding: EdgeInsets.symmetric(horizontal: 14.w),
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.green.shade600 : Colors.white,
+                          color:
+                              isSelected ? Colors.green.shade600 : Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.black12),
                         ),
-                        child: Text(filter,
+                        child: Center(
+                          child: Text(
+                            filter,
                             style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black87,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13)),
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 10.sp,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
 
               /// Horizontal Scroll Templates
               SizedBox(
-                 height: 250,
-                child: Expanded(
-                  child: GridView.builder(
-                     scrollDirection: Axis.horizontal,
-                    itemCount: globalTemplates.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 0.75,
-                    ),
-                    itemBuilder: (context, index) {
-                      final template = globalTemplates[index];
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 4),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              template['title']!,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.black,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                  template['body']!,
-                                    softWrap: true,
-                                    maxLines: 7, // 👈 limit to 4 lines
-                                    overflow: TextOverflow.ellipsis, // 👈 show ellipsis when overflow
-                                    style: const TextStyle(fontSize: 12, height: 1.4, color: Colors.black),
-                                  ),
-
-                                  const SizedBox(height: 6),
-                                  Text(
-                                   template['regards']!,
-                                    style: const TextStyle(fontSize: 11, height: 1.3, color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                height: 290.h,
+                child: GridView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: globalTemplates.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.75,
                   ),
+                  itemBuilder: (context, index) {
+                    final template = globalTemplates[index];
+                    return Container(
+                      padding: EdgeInsets.all(12.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black12, blurRadius: 4),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            template['title']!,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12.sp,
+                              color: Colors.black,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 8.h),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                template['body']!,
+                                softWrap: true,
+                                maxLines: 7,
+                                // 👈 limit to 4 lines
+                                overflow: TextOverflow.ellipsis,
+                                // 👈 show ellipsis when overflow
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  height: 1.4.h,
+                                  color: Colors.black,
+                                ),
+                              ),
+
+                              SizedBox(height: 6.h),
+                              Text(
+                                template['regards']!,
+                                style: TextStyle(
+                                  fontSize: 8.sp,
+                                  height: 1.3,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
-
-              const Spacer(),
-              //
+              SizedBox(height: 26.h),
+              // const Spacer(),
               /// Create with AI Button
               ElevatedButton.icon(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  minimumSize: Size(double.infinity, 48.h),
                 ),
-                icon: const Icon(Icons.auto_awesome, color: Colors.white),
-                label: const Text('Create with AI', style: TextStyle(color: Colors.white)),
-              )
+                icon: Icon(Icons.auto_awesome, color: Colors.white),
+                label: Text(
+                  'Create with AI',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ],
           ),
         ),
