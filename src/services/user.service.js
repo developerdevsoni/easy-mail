@@ -1,13 +1,13 @@
 const User = require("../models/user.model")
 
-exports.createOrUpdateUser = async ({ email, name, accessToken, refreshToken }) => {
+exports.createOrUpdateUser = async ({ email, name, serverAuthToken, id, photoUrl }) => {
    const existingUser = await User.findOne({ email })
    if (existingUser) {
-      existingUser.accessToken = accessToken
-      existingUser.refreshToken = refreshToken
+      existingUser.serverAuthToken = serverAuthToken
+      existingUser.id = id
       return await existingUser.save()
    } else {
-      const user = new User({ email, name, accessToken, refreshToken })
+      const user = new User({ email, name, serverAuthToken, id, photoUrl })
       return await user.save()
    }
 }
