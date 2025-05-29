@@ -197,54 +197,59 @@ Registered: [Today’s Date]
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 0.6,
                 ),
                 itemBuilder: (context, index) {
                   final template = globalTemplates[index];
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: const [
-                        BoxShadow(color: Colors.black12, blurRadius: 4),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          template['title']!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Colors.black,
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Container(
+                      // height: 200.h,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 4),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            template['title']!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                template['body']!,
-                                softWrap: true,
-                                maxLines: 7, // 👈 limit to 4 lines
-                                overflow: TextOverflow.ellipsis, // 👈 show ellipsis when overflow
-                                style: const TextStyle(fontSize: 12, height: 1.4, color: Colors.black),
-                              ),
-
-                              const SizedBox(height: 6),
-                              Text(
-                                template['regards']!,
-                                style: const TextStyle(fontSize: 11, height: 1.3, color: Colors.grey),
-                              ),
-                            ],
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  template['body']!,
+                                  softWrap: true,
+                                  maxLines: 7, // 👈 limit to 4 lines
+                                  overflow: TextOverflow.ellipsis, // 👈 show ellipsis when overflow
+                                  style: const TextStyle(fontSize: 12, height: 1.4, color: Colors.black),
+                                ),
+                    
+                                const SizedBox(height: 6),
+                                Text(
+                                  template['regards']!,
+                                  style: const TextStyle(fontSize: 11, height: 1.3, color: Colors.grey),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },
