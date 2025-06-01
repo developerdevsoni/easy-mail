@@ -144,7 +144,7 @@ Registered: [Today’s Date]
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title: const Text(
+        title:  Text(
           'Discover Templates',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -155,11 +155,11 @@ Registered: [Today’s Date]
           // Trigger AI template generator
         },
         backgroundColor: Colors.green.shade600,
-        icon: const Icon(Icons.auto_awesome, color: Colors.white),
-        label: const Text("Generate with AI", style: TextStyle(color: Colors.white)),
+        icon:  Icon(Icons.auto_awesome, color: Colors.white),
+        label:  Text("Generate with AI", style: TextStyle(color: Colors.white)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding:  EdgeInsets.all(10.0.w),
         child: Column(
           children: [
             Container(
@@ -181,7 +181,7 @@ Registered: [Today’s Date]
                   ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  contentPadding:  EdgeInsets.symmetric(horizontal: 12.w),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -189,11 +189,11 @@ Registered: [Today’s Date]
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+             SizedBox(height: 16.h),
             Expanded(
               child: GridView.builder(
                 itemCount: globalTemplates.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
@@ -206,11 +206,11 @@ Registered: [Today’s Date]
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: Container(
                       // height: 200.h,
-                      padding: const EdgeInsets.all(12),
+                      padding:  EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
+                        boxShadow:  [
                           BoxShadow(color: Colors.black12, blurRadius: 4),
                         ],
                       ),
@@ -219,34 +219,33 @@ Registered: [Today’s Date]
                         children: [
                           Text(
                             template['title']!,
-                            style: const TextStyle(
+                            style:  TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 10.sp,
                               color: Colors.black,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  template['body']!,
-                                  softWrap: true,
-                                  maxLines: 7, // 👈 limit to 4 lines
-                                  overflow: TextOverflow.ellipsis, // 👈 show ellipsis when overflow
-                                  style: const TextStyle(fontSize: 12, height: 1.4, color: Colors.black),
-                                ),
-                    
-                                const SizedBox(height: 6),
-                                Text(
-                                  template['regards']!,
-                                  style: const TextStyle(fontSize: 11, height: 1.3, color: Colors.grey),
-                                ),
-                              ],
-                            ),
+                           SizedBox(height: 8.h),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+
+                                template['body']!,
+                                softWrap: true,
+                                maxLines: 5, // 👈 limit to 4 lines
+                                overflow: TextOverflow.ellipsis, // 👈 show ellipsis when overflow
+                                style:  TextStyle(fontSize: 8.sp, height: 1.4, color: Colors.red),
+                              ),
+
+                               SizedBox(height: 6.h),
+                              Text(
+                                template['regards']!,
+                                style:  TextStyle(fontSize: 9.sp, height: 1.3.h, color: Colors.grey),
+                              ),
+                            ],
                           ),
                         ],
                       ),

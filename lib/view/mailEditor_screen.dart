@@ -283,3 +283,66 @@
 //   /// method to un focus editor
 //   void unFocusEditor() => controller.unFocus();
 // }
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+class EmailTemplate {
+  final String subject;
+  final String body;
+
+  EmailTemplate({required this.subject, required this.body});
+}
+
+final List<EmailTemplate> emailTemplates = [
+  EmailTemplate(
+    subject: 'Welcome to Our App',
+    body: 'Hi there,\n\nWelcome to our app! We’re glad to have you.\n\nRegards,\nTeam',
+  ),
+  EmailTemplate(
+    subject: 'Support Request',
+    body: 'Hello,\n\nI need help with the following issue:\n\n[Describe your issue here]',
+  ),
+  EmailTemplate(
+    subject: 'Feedback',
+    body: 'Dear Team,\n\nHere is my feedback:\n\n[Write feedback here]',
+  ),
+];
+class EmailTemplateScreen extends StatelessWidget {
+  final String toEmail = 'googllesoni@gmail.com';
+
+  void sendEmail(EmailTemplate template) async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: toEmail,
+      query: Uri.encodeFull('subject=${template.subject}&body=${template.body}'),
+    );
+
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
+    } else {
+      throw 'Could not launch email client';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Select Email Template')),
+      body: ListView.builder(
+        itemCount: emailTemplates.length,
+        itemBuilder: (context, index) {
+          final template = emailTemplates[index];
+          return ListTile(
+            title: Text(template.subject),
+            subtitle: Text(
+              template.body,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Icon(Icons.send),
+            onTap: () => sendEmail(template),
+          );
+        },
+      ),
+    );
+  }
+}

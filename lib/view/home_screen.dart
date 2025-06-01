@@ -1,6 +1,8 @@
 import 'package:easy_mail/controllers/auth_controller.dart';
 import 'package:easy_mail/utils/animatedTextWidget.dart';
 import 'package:easy_mail/view/discoverTemplete_screen.dart';
+import 'package:easy_mail/view/email_templet_editor_screen.dart';
+import 'package:easy_mail/view/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -211,36 +213,100 @@ Registered: [Today’s Date]
                 'Your templates',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 16.sp,
+                  fontSize: 12.sp,
                   color: Colors.black,
                 ),
               ),
               SizedBox(height: 12.h),
-              Column(
-                children:
-                    yourTemplates.map((template) {
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          template['title']!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black,
+              Container(
+                height: 330.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: globalTemplates.length,
+                  // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  //   crossAxisCount: 2,
+                  //   mainAxisSpacing: 12,
+                  //   crossAxisSpacing: 12,
+                  //   childAspectRatio: 0.75,
+                  // ),
+                  itemBuilder: (context, index) {
+                    final template = globalTemplates[index];
+
+                    return Card(
+                      elevation: 2,
+                      margin: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 6.h,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(10.h),
+                        width: 250.w,
+                        // margin: EdgeInsets.all(10.w),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.r),
+
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(() => EmailTemplateEditorScreen(selectedTemplate: template));
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                template['title']!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10.sp,
+                                  color: Colors.black,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 8.h),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    template['body']!,
+                                    softWrap: true,
+                                    maxLines: 7,
+                                    // 👈 limit to 4 lines
+                                    overflow: TextOverflow.ellipsis,
+                                    // 👈 show ellipsis when overflow
+                                    style: TextStyle(
+                                      fontSize: 10.sp,
+                                      height: 1.4.h,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+
+                                  SizedBox(height: 6.h),
+                                  Text(
+                                    template['regards']!,
+                                    style: TextStyle(
+                                      fontSize: 8.sp,
+                                      height: 1.3,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        subtitle: Text(
-                          template['subtitle']!,
-                          style: const TextStyle(color: Colors.black),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: CircleAvatar(
-                          radius: 20.r,
-                          backgroundColor: Colors.grey[400],
-                        ),
-                      );
-                    }).toList(),
+                      ),
+                    );
+
+                  },
+                ),
               ),
+
               SizedBox(height: 20),
 
               /// Discover Global Templates
@@ -312,8 +378,8 @@ Registered: [Today’s Date]
               SizedBox(height: 12.h),
 
               /// Horizontal Scroll Templates
-              SizedBox(
-                height: 260.h,
+              Container(
+                height: 330.h,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: globalTemplates.length,
@@ -325,149 +391,7 @@ Registered: [Today’s Date]
                   // ),
                   itemBuilder: (context, index) {
                     final template = globalTemplates[index];
-                    // return  Card(
-                    //   // elevation: 0,
-                    //   child: Container(
-                    //     padding: EdgeInsets.all(10.h),
-                    //     width: 150.w,
-                    //     margin: EdgeInsets.all( 10.w ),
-                    //     decoration: BoxDecoration(
-                    //       color: Colors.white,
-                    //       gradient:LinearGradient(colors: [Colors.white,Colors.white]),
-                    //       borderRadius: BorderRadius.circular(12.r),
-                    //
-                    //       // boxShadow: [
-                    //       //   BoxShadow(color: Colors.black12, blurRadius: 4),
-                    //       // ],
-                    //     ),
-                    //     child: Column(
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         Center(
-                    //           child: Text(
-                    //             template['title']!,
-                    //             textAlign: TextAlign.center,
-                    //             style: TextStyle(
-                    //               fontWeight: FontWeight.bold,
-                    //               fontSize: 12.sp,
-                    //               color: Colors.black,
-                    //             ),
-                    //             maxLines: 2,
-                    //             overflow: TextOverflow.ellipsis,
-                    //           ),
-                    //         ),
-                    //         SizedBox(height: 8.h),
-                    //         Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             Text(
-                    //               template['body']!,
-                    //               softWrap: true,
-                    //               maxLines: 7,
-                    //               // 👈 limit to 4 lines
-                    //               overflow: TextOverflow.ellipsis,
-                    //               // 👈 show ellipsis when overflow
-                    //               style: TextStyle(
-                    //                 fontSize: 10.sp,
-                    //                 height: 1.4.h,
-                    //                 color: Colors.black,
-                    //               ),
-                    //             ),
-                    //
-                    //             SizedBox(height: 6.h),
-                    //             Text(
-                    //               template['regards']!,
-                    //               style: TextStyle(
-                    //                 fontSize: 8.sp,
-                    //                 height: 1.3,
-                    //                 color: Colors.grey,
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // );
-                 // return   Card(
-                 //      elevation: 2,
-                 //      margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
-                 //      shape: RoundedRectangleBorder(
-                 //        borderRadius: BorderRadius.circular(12.r),
-                 //      ),
-                 //      child: Container(
-                 //        padding: EdgeInsets.all(10.h),
-                 //        width: 180.w,
-                 //        decoration: BoxDecoration(
-                 //          gradient: LinearGradient(
-                 //            colors: [Colors.white, Colors.grey[100]!],
-                 //            begin: Alignment.topLeft,
-                 //            end: Alignment.bottomRight,
-                 //          ),
-                 //          borderRadius: BorderRadius.circular(12.r),
-                 //        ),
-                 //        child: Column(
-                 //          crossAxisAlignment: CrossAxisAlignment.start,
-                 //          children: [
-                 //            // Sender (Avatar + Title)
-                 //            Row(
-                 //              children: [
-                 //                CircleAvatar(
-                 //                  radius: 14.r,
-                 //                  backgroundImage: AssetImage('assets/images/mail_user.png'), // Replace with your image
-                 //                ),
-                 //                SizedBox(width: 8.w),
-                 //                Expanded(
-                 //                  child: Text(
-                 //                    template['title']!,
-                 //                    maxLines: 1,
-                 //                    overflow: TextOverflow.ellipsis,
-                 //                    style: TextStyle(
-                 //                      fontSize: 12.sp,
-                 //                      fontWeight: FontWeight.w600,
-                 //                      color: Colors.black87,
-                 //                    ),
-                 //                  ),
-                 //                ),
-                 //              ],
-                 //            ),
-                 //            SizedBox(height: 8.h),
-                 //
-                 //            // Body Preview
-                 //            Text(
-                 //              template['body']!,
-                 //              maxLines: 3,
-                 //              overflow: TextOverflow.ellipsis,
-                 //              style: TextStyle(
-                 //                fontSize: 10.sp,
-                 //                color: Colors.black87,
-                 //                height: 1.4,
-                 //              ),
-                 //            ),
-                 //            Spacer(),
-                 //
-                 //            // Footer: Regards + icon
-                 //            Row(
-                 //              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 //              children: [
-                 //                Text(
-                 //                  template['regards']!,
-                 //                  style: TextStyle(
-                 //                    fontSize: 9.sp,
-                 //                    color: Colors.grey[600],
-                 //                  ),
-                 //                ),
-                 //                Icon(
-                 //                  Icons.mail_outline,
-                 //                  size: 14.sp,
-                 //                  color: Colors.grey[600],
-                 //                ),
-                 //              ],
-                 //            ),
-                 //          ],
-                 //        ),
-                 //      ),
-                 //    );
+
                     return Card(
                       elevation: 2,
                       margin: EdgeInsets.symmetric(
@@ -479,66 +403,62 @@ Registered: [Today’s Date]
                       ),
                       child: Container(
                         padding: EdgeInsets.all(10.h),
-                        width: 150.w,
+                        width: 250.w,
                         // margin: EdgeInsets.all(10.w),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12.r),
-                          // gradient: LinearGradient(
-                          //   colors: [Colors.white, Colors.white],
-                          // ),
-                          // borderRadius: BorderRadius.circular(12.r),
 
-                          // boxShadow: [
-                          //   BoxShadow(color: Colors.black12, blurRadius: 4),
-                          // ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Center(
-                              child: Text(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(() => EmailTemplateEditorScreen(selectedTemplate: template));
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
                                 template['title']!,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12.sp,
+                                  fontSize: 10.sp,
                                   color: Colors.black,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            SizedBox(height: 8.h),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  template['body']!,
-                                  softWrap: true,
-                                  maxLines: 7,
-                                  // 👈 limit to 4 lines
-                                  overflow: TextOverflow.ellipsis,
-                                  // 👈 show ellipsis when overflow
-                                  style: TextStyle(
-                                    fontSize: 10.sp,
-                                    height: 1.4.h,
-                                    color: Colors.black,
+                              SizedBox(height: 8.h),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    template['body']!,
+                                    softWrap: true,
+                                    maxLines: 7,
+                                    // 👈 limit to 4 lines
+                                    overflow: TextOverflow.ellipsis,
+                                    // 👈 show ellipsis when overflow
+                                    style: TextStyle(
+                                      fontSize: 10.sp,
+                                      height: 1.4.h,
+                                      color: Colors.black,
+                                    ),
                                   ),
-                                ),
 
-                                SizedBox(height: 6.h),
-                                Text(
-                                  template['regards']!,
-                                  style: TextStyle(
-                                    fontSize: 8.sp,
-                                    height: 1.3,
-                                    color: Colors.grey,
+                                  SizedBox(height: 6.h),
+                                  Text(
+                                    template['regards']!,
+                                    style: TextStyle(
+                                      fontSize: 8.sp,
+                                      height: 1.3,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

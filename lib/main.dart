@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child:    IntroScreen(),
+      child:    HomeScreen(),
     );
   }
 }
