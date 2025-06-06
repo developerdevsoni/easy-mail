@@ -29,6 +29,7 @@ class TypingPromptController extends GetxController {
       final response = await geminiService.generateEmail(prompt);
       result.value = response;
     } catch (e) {
+      print(e);
       result.value = 'Error: $e';
     } finally {
       isLoading.value = false;

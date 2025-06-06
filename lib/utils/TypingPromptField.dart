@@ -53,11 +53,13 @@ class TypingPromptField extends StatelessWidget {
               TextField(
                 controller: controller.textController,
                 maxLines: 4,
+                textInputAction: TextInputAction.done,
                 style: textStyle.copyWith(color: Colors.black),
                 decoration: const InputDecoration.collapsed(
                   hintText: '',
                 ),
-                onChanged: (value) {
+
+                onSubmitted: (value) {
                   controller.submitPrompt(value);
                 },
               ),

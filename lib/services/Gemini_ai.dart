@@ -1,33 +1,19 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 class GeminiService {
-  final String apiKey = 'AIzaSyBrf1s23Y41WLPPDXE8vpYPlHSOPUrR3p0';
+  final gemini = Gemini.init(apiKey: 'AIzaSyBrf1s23Y41WLPPDXE8vpYPlHSOPUrR3p0'); // Replace with your actual API key
 
   Future<String> generateEmail(String prompt) async {
-    final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$apiKey');
+    try {
+      final response = await gemini.text(prompt);
 
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-
-    final body = jsonEncode({
-      "contents": [
-        {
-          "parts": [
-            {"text": prompt}
-          ]
-        }
-      ]
-    });
-
-    final response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['candidates'][0]['content']['parts'][0]['text'];
-    } else {
-      throw Exception('Failed to generate content: ${response.body}');
+      if (response?.output != null && response!.output!.isNotEmpty) {
+        return response.output!;
+      } else {
+        return 'No response from Gemini.';
+      }
+    } catch (e) {
+      return 'Error generating email: $e';
     }
   }
 }
