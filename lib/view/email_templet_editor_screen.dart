@@ -5,7 +5,7 @@ import 'package:flutter/services.dart'; // 👈 Required for Clipboard
 
 import 'package:url_launcher/url_launcher.dart'; // URL Launcher
 class EmailTemplateEditorScreen extends StatefulWidget {
-  final Map<String, String>? selectedTemplate;
+  final  selectedTemplate;
 
   const EmailTemplateEditorScreen({super.key, this.selectedTemplate});
 

@@ -4,7 +4,8 @@
 // import 'package:quill_html_editor/quill_html_editor.dart';
 //
 // class MailEditorScreen extends StatefulWidget {
-//   const MailEditorScreen({super.key});
+//   final String? initialText;
+//   const MailEditorScreen({super.key, this.initialText});
 //
 //   @override
 //   State<MailEditorScreen> createState() => _MailEditorScreenState();
@@ -49,6 +50,11 @@
 //     });
 //     controller.onEditorLoaded(() {
 //       debugPrint('Editor Loaded :)');
+//       if (widget.initialText != null && widget.initialText!.isNotEmpty) {
+//         setHtmlText(widget.initialText!);
+//       } else {
+//         setHtmlText('Testing text on load');
+//       }
 //     });
 //     super.initState();
 //   }
@@ -295,7 +301,7 @@ class EmailTemplate {
 final List<EmailTemplate> emailTemplates = [
   EmailTemplate(
     subject: 'Welcome to Our App',
-    body: 'Hi there,\n\nWelcome to our app! We’re glad to have you.\n\nRegards,\nTeam',
+    body: 'Hi there,\n\nWelcome to our app! Were glad to have you.\n\nRegards,\nTeam',
   ),
   EmailTemplate(
     subject: 'Support Request',

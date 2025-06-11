@@ -1,6 +1,7 @@
 import 'package:easy_mail/controllers/auth_controller.dart';
 import 'package:easy_mail/utils/Icon_animation.dart';
 import 'package:easy_mail/view/email_templet_editor_screen.dart';
+import 'package:easy_mail/view/ai_mail_generator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -16,7 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, String>> personalTemplates = [
     {
       'title': 'Sales follow-up',
-      'subtitle': 'Hi [name], Just wanted to follow up on our previous conversation...'
+      'subtitle':
+          'Hi [name], Just wanted to follow up on our previous conversation...'
     },
     {
       'title': 'New feature announcement',
@@ -27,13 +29,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, String>> globalTemplates = [
     {
       'title': '🚀 Product Launch Announcement',
-      'body': 'Hi [Name],\n\nWe re excited to let you know that our new product is live! Discover the features, explore the possibilities, and let us know what you think.\n\nFor more details, visit: [Product Page Link]',
-      'regards': 'Best regards,  Team [Your Company]\n\nCC: product@company.com  Date: [Launch Date]'
+      'body':
+          'Hi [Name],\n\nWe re excited to let you know that our new product is live! Discover the features, explore the possibilities, and let us know what you think.\n\nFor more details, visit: [Product Page Link]',
+      'regards':
+          'Best regards,  Team [Your Company]\n\nCC: product@company.com  Date: [Launch Date]'
     },
     {
       'title': '🎁 Holiday Offer – Limited Time Only!',
-      'body': 'Hey [Name],\n\nWe ve got something special just for you — enjoy 40% OFF everything in our store until December 31st!\n\nUse code: HOLIDAY40  Shop now 👉 [Link]',
-      'regards': 'Warm wishes,  The [Company] Team\n\nCC: marketing@company.com  Valid until: Dec 31'
+      'body':
+          'Hey [Name],\n\nWe ve got something special just for you — enjoy 40% OFF everything in our store until December 31st!\n\nUse code: HOLIDAY40  Shop now 👉 [Link]',
+      'regards':
+          'Warm wishes,  The [Company] Team\n\nCC: marketing@company.com  Valid until: Dec 31'
     },
     {
       'title': '📅 Webinar Reminder – Starts in 1 Hour',
@@ -163,7 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? NetworkImage(controller.photoUrl.value)
                               : null,
                           child: controller.photoUrl.value.isEmpty
-                              ? Icon(Icons.person, size: 30.r, color: Colors.white)
+                              ? Icon(Icons.person,
+                                  size: 30.r, color: Colors.white)
                               : null,
                         ),
                         Text(
@@ -175,7 +182,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () async => await controller.signOutGoogle(),
+                          onPressed: () async =>
+                              await controller.signOutGoogle(),
                           icon: const Icon(Icons.logout, color: Colors.black54),
                         ),
                       ],
@@ -196,7 +204,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       child: TextField(
-
                         onChanged: (value) {
                           setState(() {
                             searchQuery = value;
@@ -204,9 +211,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
-
                           hintText: 'Search templates...',
-                          prefixIcon: Icon(Icons.search,color: Colors.black,),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Colors.black,
+                          ),
                           border: InputBorder.none,
                           hintStyle: TextStyle(color: Colors.black),
                           contentPadding: EdgeInsets.symmetric(vertical: 14.h),
@@ -218,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     /// AI Template Creation Card
                     GestureDetector(
                       onTap: () {
-                        // TODO: Navigate to AI template creation
+                        Get.to(() => const AiMailGeneratorScreen());
                       },
                       child: Container(
                         width: double.infinity,
@@ -262,7 +271,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            Icon(Icons.arrow_forward_ios, color: Colors.green.shade700, size: 20.r),
+                            Icon(Icons.arrow_forward_ios,
+                                color: Colors.green.shade700, size: 20.r),
                           ],
                         ),
                       ),
@@ -289,7 +299,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           final template = personalTemplates[index];
                           return GestureDetector(
                             onTap: () {
-                              // TODO: Navigate to personal template editor
+    Get.to(() => EmailTemplateEditorScreen(
+    selectedTemplate: template));
+      // TODO: Navigate to personal template editor
                             },
                             child: Container(
                               width: 220.w,
@@ -331,7 +343,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Spacer(),
                                   Align(
                                     alignment: Alignment.bottomRight,
-                                    child: Icon(Icons.edit, color: Colors.green.shade400, size: 18.r),
+                                    child: Icon(Icons.edit,
+                                        color: Colors.green.shade400,
+                                        size: 18.r),
                                   ),
                                 ],
                               ),
@@ -376,6 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+
             /// Global Templates Grid
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -385,13 +400,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     final template = globalTemplates[index];
                     // Filter by search and selected filter (if implemented)
                     if (searchQuery.isNotEmpty &&
-                        !(template['title']!.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                          template['body']!.toLowerCase().contains(searchQuery.toLowerCase()))) {
+                        !(template['title']!
+                                .toLowerCase()
+                                .contains(searchQuery.toLowerCase()) ||
+                            template['body']!
+                                .toLowerCase()
+                                .contains(searchQuery.toLowerCase()))) {
                       return SizedBox.shrink();
                     }
                     return GestureDetector(
                       onTap: () {
-                        Get.to(() => EmailTemplateEditorScreen(selectedTemplate: template));
+                        Get.to(() => EmailTemplateEditorScreen(
+                            selectedTemplate: template));
                       },
                       child: Container(
                         margin: EdgeInsets.only(bottom: 14.h),
@@ -433,7 +453,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             Spacer(),
                             Align(
                               alignment: Alignment.bottomRight,
-                              child: Icon(Icons.arrow_forward, color: Colors.green.shade400, size: 18.r),
+                              child: Icon(Icons.arrow_forward,
+                                  color: Colors.green.shade400, size: 18.r),
                             ),
                           ],
                         ),
