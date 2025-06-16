@@ -13,14 +13,15 @@ class AiMailGeneratorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final TypingPromptController controller = Get.put(TypingPromptController());
     return Scaffold(
-
       backgroundColor: MyColor().lightGreen,
       appBar: AppBar(
         leading: const BackButton(color: Colors.black),
-        title: const Text('Generate Mail with AI',
-    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+        title: const Text(
+          'Generate Mail with AI',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
 
-    backgroundColor: const Color(0xFFF3F8F2),
+        backgroundColor: const Color(0xFFF3F8F2),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -30,7 +31,11 @@ class AiMailGeneratorScreen extends StatelessWidget {
             children: [
               const Text(
                 'Describe what you want to write:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.black),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
               const SizedBox(height: 16),
               TypingPromptField(),
@@ -45,9 +50,14 @@ class AiMailGeneratorScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EmailTemplateEditorScreen(
-                            selectedTemplate: "adgjaghdf",
-                          ),
+                          builder:
+                              (context) => EmailTemplateEditorScreen(
+                                selectedTemplate: {
+                                  'title': 'Sales follow-up',
+                                  'subtitle':
+                                      'Hi [name], Just wanted to follow up on our previous conversation...',
+                                },
+                              ),
                         ),
                       );
                     },

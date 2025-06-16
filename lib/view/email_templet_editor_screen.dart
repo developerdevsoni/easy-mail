@@ -4,8 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart'; // 👈 Required for Clipboard
 
 import 'package:url_launcher/url_launcher.dart'; // URL Launcher
+
 class EmailTemplateEditorScreen extends StatefulWidget {
-  final  selectedTemplate;
+  final selectedTemplate;
 
   const EmailTemplateEditorScreen({super.key, this.selectedTemplate});
 
@@ -14,8 +15,7 @@ class EmailTemplateEditorScreen extends StatefulWidget {
       _EmailTemplateEditorScreenState();
 }
 
-class _EmailTemplateEditorScreenState
-    extends State<EmailTemplateEditorScreen> {
+class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
   final toController = TextEditingController();
   final ccController = TextEditingController();
   final bccController = TextEditingController();
@@ -29,26 +29,27 @@ class _EmailTemplateEditorScreenState
     if (widget.selectedTemplate != null) {
       subjectController.text = widget.selectedTemplate!['title'] ?? '';
       bodyController.text =
-      '${widget.selectedTemplate!['body'] ?? ''}\n\n${widget.selectedTemplate!['regards'] ?? ''}';
+          '${widget.selectedTemplate!['body'] ?? ''}\n\n${widget.selectedTemplate!['regards'] ?? ''}';
     }
 
     _pasteEmailFromClipboard(); // 👈 Automatically fetch clipboard Gmail
   }
 
   Future<void> _pasteEmailFromClipboard() async {
-    final clipboardData = await Clipboard.getData('text/plain');
-    print(clipboardData!.text);
-    if (clipboardData != null) {
-      final text = clipboardData.text ?? '';
-      final emailRegex = RegExp(r'\b[\w._%+-]+@[\w.-]+\.\w{2,}\b');
-      final match = emailRegex.firstMatch(text);
+    final clipboardData = "";
+    await Clipboard.getData('text/plain');
 
-      if (match != null) {
-        setState(() {
-          toController.text = match.group(0)!;
-        });
-      }
-    }
+    // if (clipboardData != null) {
+    //   final text = clipboardData.text ?? '';
+    //   final emailRegex = RegExp(r'\b[\w._%+-]+@[\w.-]+\.\w{2,}\b');
+    //   final match = emailRegex.firstMatch(text);
+
+    //   if (match != null) {
+    //     setState(() {
+    //       toController.text = match.group(0)!;
+    //     });
+    //   }
+    // }
   }
 
   Future<void> _launchMailClient() async {
@@ -59,7 +60,8 @@ class _EmailTemplateEditorScreenState
     final body = Uri.encodeComponent(bodyController.text.trim());
 
     final mailtoLink = Uri.parse(
-        'mailto:$to?cc=$cc&bcc=$bcc&subject=$subject&body=$body');
+      'mailto:$to?cc=$cc&bcc=$bcc&subject=$subject&body=$body',
+    );
 
     if (await canLaunchUrl(mailtoLink)) {
       await launchUrl(mailtoLink);
@@ -90,7 +92,7 @@ class _EmailTemplateEditorScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title:  Text(
+        title: Text(
           'Discover Templates',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
@@ -108,8 +110,7 @@ class _EmailTemplateEditorScreenState
               _buildInlineField("Subject", subjectController),
               const Divider(height: 1),
               Padding(
-                padding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
                 child: TextField(
                   controller: bodyController,
                   keyboardType: TextInputType.multiline,
@@ -130,7 +131,9 @@ class _EmailTemplateEditorScreenState
                     style: ElevatedButton.styleFrom(
                       backgroundColor: lightGreen,
                       padding: EdgeInsets.symmetric(
-                          horizontal: 20.w, vertical: 10.h),
+                        horizontal: 20.w,
+                        vertical: 10.h,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12.r),
                       ),
@@ -139,8 +142,10 @@ class _EmailTemplateEditorScreenState
                     onPressed: _launchMailClient,
 
                     icon: const Icon(Icons.send, color: Colors.black),
-                    label: const Text("Send",
-                        style: TextStyle(color: Colors.black)),
+                    label: const Text(
+                      "Send",
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ),
               ),
@@ -151,8 +156,7 @@ class _EmailTemplateEditorScreenState
     );
   }
 
-  Widget _buildInlineField(
-      String label, TextEditingController controller) {
+  Widget _buildInlineField(String label, TextEditingController controller) {
     return Column(
       children: [
         Padding(

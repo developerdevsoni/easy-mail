@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 class TypingPromptController extends GetxController {
   final textController = TextEditingController();
   var showAnimation = true.obs;
-  var result = ''.obs;
+  var result = <String, String>{}.obs;
   var isLoading = false.obs;
 
   final geminiService = GeminiService();
@@ -18,24 +18,27 @@ class TypingPromptController extends GetxController {
     });
   }
 
-  Future<void> submitPrompt(String prompt) async {
-    print(prompt);
-    if (prompt.trim().isEmpty) return;
+Future<void> submitPrompt(String prompt) async {
+  print(prompt);
+  if (prompt.trim().isEmpty) return;
 
-    isLoading.value = true;
-    result.value = '';
+  isLoading.value = true;
+  result.value = {}; // ✅ Clear the previous result
 
-    try {
-      final response = await geminiService.generateEmail(prompt);
-      result.value = response;
-    } catch (e) {
-      print(e);
-      result.value = 'Error: $e';
-    } finally {
-      isLoading.value = false;
-    }
+  try {
+    final response = await geminiService.generateEmail(prompt);
+    result.value = response; // ✅ This is a Map<String, String>
+  } catch (e) {
+    print(e);
+    result.value = {
+      'title': '',
+      'body': '',
+      'regards': 'Error: $e',
+    };
+  } finally {
+    isLoading.value = false;
   }
-
+}
   @override
   void onClose() {
     textController.dispose();

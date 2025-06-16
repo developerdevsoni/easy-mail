@@ -11,10 +11,7 @@ class TypingPromptField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = TextStyle(
-      fontSize: 10.0.sp,
-      color: Colors.grey.shade600,
-    );
+    final textStyle = TextStyle(fontSize: 10.0.sp, color: Colors.black);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,37 +25,38 @@ class TypingPromptField extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              Obx(() => controller.showAnimation.value
-                  ? Positioned.fill(
-                child: IgnorePointer(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0, left: 4),
-                    child: AnimatedTextKit(
-                      animatedTexts: [
-                        TypewriterAnimatedText(
-                          'Write your prompt to generate with AI...',
-                          textStyle:
-                          textStyle.copyWith(color: Colors.grey),
-                          speed: const Duration(milliseconds: 60),
-                        ),
-                      ],
-                      repeatForever: true,
-                      isRepeatingAnimation: true,
-                      pause: const Duration(milliseconds: 1000),
-                    ),
-                  ),
-                ),
-              )
-                  : const SizedBox.shrink()),
+              Obx(
+                () =>
+                    controller.showAnimation.value
+                        ? Positioned.fill(
+                          child: IgnorePointer(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0, left: 4),
+                              child: AnimatedTextKit(
+                                animatedTexts: [
+                                  TypewriterAnimatedText(
+                                    'Write your prompt to generate with AI...',
+                                    textStyle: textStyle.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                                    speed: const Duration(milliseconds: 60),
+                                  ),
+                                ],
+                                repeatForever: true,
+                                isRepeatingAnimation: true,
+                                pause: const Duration(milliseconds: 1000),
+                              ),
+                            ),
+                          ),
+                        )
+                        : const SizedBox.shrink(),
+              ),
               TextField(
                 controller: controller.textController,
                 maxLines: 4,
                 textInputAction: TextInputAction.done,
                 style: textStyle.copyWith(color: Colors.black),
-                decoration: const InputDecoration.collapsed(
-                  hintText: '',
-                ),
-
+                decoration: const InputDecoration.collapsed(hintText: ''),
                 onSubmitted: (value) {
                   controller.submitPrompt(value);
                 },
@@ -73,15 +71,42 @@ class TypingPromptField extends StatelessWidget {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           } else if (controller.result.value.isNotEmpty) {
+            final email = controller.result.value;
             return Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                controller.result.value,
-                style: TextStyle(fontSize: 12.sp, color: Colors.black),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title (Subject)
+                  Text(
+                    'Subject: ${email['title'] ?? 'No title'}',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Body (Main content)
+                  Text(
+                    email['body'] ?? 'No body content',
+                    style: TextStyle(fontSize: 12.sp),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Regards (Closing)
+                  Text(
+                    email['regards'] ?? 'No regards',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
               ),
             );
           } else {
