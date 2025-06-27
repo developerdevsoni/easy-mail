@@ -1,35 +1,45 @@
-const fs = require('fs');
-const path = './data/templates.json';
+const MailTemplate = require("../models/mailTemplate.model")
+const GlobalTemplate = require("../models/globalTemplate.model")
 
-function readTemplates() {
-  return JSON.parse(fs.readFileSync(path, 'utf-8'));
+exports.saveTemplate = async ({ userId, subject, body, isFavorite = false }) => {
+   const template = new MailTemplate({ userId, subject, body, isFavorite })
+   return await template.save()
 }
 
-function writeTemplates(data) {
-  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+exports.getTemplatesByUser = async (userId) => {
+   return await MailTemplate.find({ userId }).sort({ createdAt: -1 })
 }
 
-exports.getAllTemplates = () => readTemplates();
+exports.getFavoriteTemplates = async (userId) => {
+   return await MailTemplate.find({ userId, isFavorite: true }).sort({ createdAt: -1 })
+}
 
-exports.addTemplate = (template) => {
-  const data = readTemplates();
-  template.id = Date.now().toString();
-  data.push(template);
-  writeTemplates(data);
-  return { success: true };
-};
+exports.toggleFavorite = async (templateId, userId) => {
+   const template = await MailTemplate.findOne({ _id: templateId, userId })
+   if (!template) throw new Error("Template not found")
+   template.isFavorite = !template.isFavorite
+   return await template.save()
+}
 
-exports.updateTemplate = (id, updated) => {
-  let data = readTemplates();
-  const index = data.findIndex(t => t.id === id);
-  if (index === -1) return { success: false };
-  data[index] = { ...data[index], ...updated };
-  writeTemplates(data);
-  return { success: true };
-};
+exports.getGlobalTemplates = async () => {
+   return await GlobalTemplate.find().sort({ createdAt: -1 })
+}
 
-exports.deleteTemplate = (id) => {
-  let data = readTemplates().filter(t => t.id !== id);
-  writeTemplates(data);
-  return { success: true };
-};
+exports.saveGlobalTemplate = async ({ subject, body, title, regards }) => {
+   const template = new GlobalTemplate({ subject, body, title, regards })
+   return await template.save()
+}
+
+exports.sendMailFromUser = async ({ userId, templateId, subject, body, to }) => {
+   // Placeholder for email sending logic
+   // You can integrate with nodemailer or any email service here
+   const template = await MailTemplate.findOne({ _id: templateId, userId })
+   if (!template) throw new Error("Template not found")
+
+   // Simulated email sending
+   return {
+      success: true,
+      message: `Email sent to ${to} with subject: ${subject || template.subject}`,
+      data: { subject: subject || template.subject, body: body || template.body },
+   }
+}
