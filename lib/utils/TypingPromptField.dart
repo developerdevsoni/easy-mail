@@ -75,7 +75,7 @@ class TypingPromptField extends StatelessWidget {
             return Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -86,6 +86,7 @@ class TypingPromptField extends StatelessWidget {
                     'Subject: ${email['title'] ?? 'No title'}',
                     style: TextStyle(
                       fontSize: 14.sp,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -94,7 +95,8 @@ class TypingPromptField extends StatelessWidget {
                   // Body (Main content)
                   Text(
                     email['body'] ?? 'No body content',
-                    style: TextStyle(fontSize: 12.sp),
+                    style: TextStyle(fontSize: 12.sp,
+                      color: Colors.black,),
                   ),
                   const SizedBox(height: 12),
 
@@ -103,6 +105,7 @@ class TypingPromptField extends StatelessWidget {
                     email['regards'] ?? 'No regards',
                     style: TextStyle(
                       fontSize: 12.sp,
+                      color: Colors.black,
                       fontStyle: FontStyle.italic,
                     ),
                   ),

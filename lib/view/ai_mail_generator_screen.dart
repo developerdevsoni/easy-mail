@@ -3,7 +3,7 @@ import 'package:easy_mail/view/email_templet_editor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_mail/utils/TypingPromptField.dart';
 import 'package:get/get.dart';
-import 'mailEditor_screen.dart';
+// import 'mailEditor_screen.dart';
 import '../controllers/animatedTextWidget.dart';
 
 class AiMailGeneratorScreen extends StatelessWidget {
@@ -53,10 +53,9 @@ class AiMailGeneratorScreen extends StatelessWidget {
                           builder:
                               (context) => EmailTemplateEditorScreen(
                                 selectedTemplate: {
-                                  'title': 'Sales follow-up',
-                                  'subtitle':
-                                      'Hi [name], Just wanted to follow up on our previous conversation...',
-                                },
+                                  'title': generated["title"],
+                                  'body':generated["body"],
+                                "regrads":generated["regards"]},
                               ),
                         ),
                       );

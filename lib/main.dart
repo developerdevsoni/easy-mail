@@ -1,6 +1,6 @@
 import 'package:easy_mail/view/home_screen.dart';
 import 'package:easy_mail/view/intro_screen.dart';
-import 'package:easy_mail/view/mailEditor_screen.dart';
+// import 'package:easy_mail/view/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
