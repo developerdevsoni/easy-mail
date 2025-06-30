@@ -1,4 +1,6 @@
 import 'package:easy_mail/view/discoverTemplete_screen.dart';
+import 'package:easy_mail/utils/app_theme.dart';
+import 'package:easy_mail/widgets/modern_ui_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart'; // 👈 Required for Clipboard
@@ -67,7 +69,10 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
       await launchUrl(mailtoLink);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open mail client')),
+        SnackBar(
+          content: Text('Could not open mail client'),
+          backgroundColor: AppTheme.errorRed,
+        ),
       );
     }
   }
@@ -84,110 +89,497 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lightGreen = const Color(0xFFB2DFDB);
-
     return Scaffold(
-      backgroundColor: MyColor().lightGreen,
+      backgroundColor: AppTheme.backgroundGray,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
-        title: Text(
-          'Discover Templates',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            children: [
-              _buildInlineField("To", toController),
-              const Divider(height: 1),
-              _buildInlineField("CC", ccController),
-              _buildInlineField("BCC", bccController),
-              _buildInlineField("Subject", subjectController),
-              const Divider(height: 1),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                child: TextField(
-                  controller: bodyController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  minLines: null,
-                  style: TextStyle(fontSize: 9.sp, color: Colors.black),
-                  decoration: const InputDecoration(
-                    hintText: "Compose email",
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 16.w, bottom: 10.h),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: lightGreen,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 10.h,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                    ),
-
-                    onPressed: _launchMailClient,
-
-                    icon: const Icon(Icons.send, color: Colors.black),
-                    label: const Text(
-                      "Send",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
+        leading: Container(
+          margin: EdgeInsets.all(6.r),
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceWhite,
+            borderRadius: BorderRadius.circular(8.r),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
+          child: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: AppTheme.textPrimary,
+              size: 16.r,
+            ),
+          ),
         ),
+        title: Text(
+          'Email Editor',
+          style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        centerTitle: true,
+        actions: [
+          Container(
+            margin: EdgeInsets.all(6.r),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceWhite,
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: IconButton(
+              onPressed: () {
+                // TODO: Show email options
+              },
+              icon: Icon(
+                Icons.more_vert_rounded,
+                color: AppTheme.textSecondary,
+                size: 16.r,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 📧 COMPACT EMAIL HEADER SECTION
+                  ModernCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.email_outlined,
+                              color: AppTheme.primaryBlue,
+                              size: 16.r,
+                            ),
+                            SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: Text(
+                                'Email Details',
+                                style: AppTheme.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: AppSpacing.sm),
+                        
+                        _buildEmailField("To", toController, Icons.person_outline_rounded),
+                        _buildEmailField("CC", ccController, Icons.people_outline_rounded),
+                        _buildEmailField("BCC", bccController, Icons.visibility_off_outlined),
+                        _buildEmailField("Subject", subjectController, Icons.subject_rounded, isLastField: true),
+                      ],
+                    ),
+                  ),
+                  
+                  SizedBox(height: AppSpacing.sm),
+                  
+                  // 📝 COMPACT EMAIL BODY SECTION
+                  ModernCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.edit_note_rounded,
+                              color: AppTheme.secondaryTeal,
+                              size: 16.r,
+                            ),
+                            SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: Text(
+                                'Email Content',
+                                style: AppTheme.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                              decoration: BoxDecoration(
+                                color: AppTheme.backgroundGray,
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Text(
+                                '${bodyController.text.length} chars',
+                                style: AppTheme.caption.copyWith(
+                                  color: AppTheme.textSecondary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: AppSpacing.sm),
+                        
+                        Container(
+                          width: double.infinity,
+                          constraints: BoxConstraints(minHeight: 200.h),
+                          decoration: BoxDecoration(
+                            color: AppTheme.backgroundGray,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: AppTheme.cardGray,
+                              width: 1,
+                            ),
+                          ),
+                          child: TextField(
+                            controller: bodyController,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            minLines: 8,
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: AppTheme.textPrimary,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Compose your email...",
+                              hintStyle: AppTheme.bodySmall.copyWith(
+                                color: AppTheme.textTertiary,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(AppSpacing.sm),
+                            ),
+                            onChanged: (value) {
+                              setState(() {}); // Update character count
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  SizedBox(height: AppSpacing.sm),
+                  
+                  // 🛠️ COMPACT QUICK ACTIONS
+                  ModernCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Quick Actions',
+                          style: AppTheme.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: AppSpacing.xs),
+                        
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildQuickAction(
+                                'Save Draft',
+                                Icons.save_outlined,
+                                AppTheme.textSecondary,
+                                () {
+                                  // TODO: Save draft
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Draft saved'),
+                                      backgroundColor: AppTheme.successGreen,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: _buildQuickAction(
+                                'Copy Text',
+                                Icons.copy_rounded,
+                                AppTheme.textSecondary,
+                                () {
+                                  final fullEmail = '''
+Subject: ${subjectController.text}
+
+${bodyController.text}
+                                  ''';
+                                  Clipboard.setData(ClipboardData(text: fullEmail));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Copied to clipboard'),
+                                      backgroundColor: AppTheme.successGreen,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: _buildQuickAction(
+                                'Clear All',
+                                Icons.clear_rounded,
+                                AppTheme.errorRed,
+                                () {
+                                  _showClearConfirmation();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // 🚀 COMPACT SEND SECTION
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceWhite,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, -3),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        color: AppTheme.textSecondary,
+                        size: 12.r,
+                      ),
+                      SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: Text(
+                          'This will open your default email client',
+                          style: AppTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.xs),
+                  
+                  ModernButton(
+                    text: 'Send Email',
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: AppTheme.surfaceWhite,
+                      size: 14.r,
+                    ),
+                    minimumSize: Size(double.infinity, 42.h),
+                    onPressed: _canSendEmail() ? _launchMailClient : null,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInlineField(String label, TextEditingController controller) {
+  Widget _buildEmailField(String label, TextEditingController controller, IconData icon, {bool isLastField = false}) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 50.w,
-                child: Text(
-                  label,
-                  style: TextStyle(fontSize: 10.sp, color: Colors.black),
-                ),
-              ),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  style: TextStyle(fontSize: 11.sp, color: Colors.black),
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                    border: InputBorder.none,
-                    hintText: '',
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 50.w,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    icon,
+                    color: AppTheme.textSecondary,
+                    size: 12.r,
                   ),
+                  SizedBox(width: AppSpacing.xs),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: AppTheme.bodySmall.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.textSecondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: TextField(
+                controller: controller,
+                style: AppTheme.bodySmall.copyWith(
+                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.r),
+                    borderSide: BorderSide(color: AppTheme.cardGray),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.r),
+                    borderSide: BorderSide(color: AppTheme.cardGray),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.r),
+                    borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+                  ),
+                  hintText: label == "Subject" ? "Enter email subject" : "Enter email address",
+                  hintStyle: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+                  filled: true,
+                  fillColor: AppTheme.backgroundGray,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const Divider(height: 1),
+        if (!isLastField) SizedBox(height: AppSpacing.xs),
       ],
+    );
+  }
+  
+  Widget _buildQuickAction(String label, IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
+        decoration: BoxDecoration(
+          color: AppTheme.backgroundGray,
+          borderRadius: BorderRadius.circular(6.r),
+          border: Border.all(color: AppTheme.cardGray),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: color,
+              size: 16.r,
+            ),
+            SizedBox(height: AppSpacing.xs),
+            Text(
+              label,
+              style: AppTheme.bodySmall.copyWith(
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  bool _canSendEmail() {
+    return toController.text.trim().isNotEmpty && 
+           subjectController.text.trim().isNotEmpty &&
+           bodyController.text.trim().isNotEmpty;
+  }
+  
+  void _showClearConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.surfaceWhite,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          title: Text(
+            'Clear All Fields',
+            style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          content: Text(
+            'Are you sure you want to clear all email fields? This action cannot be undone.',
+            style: AppTheme.bodySmall,
+            overflow: TextOverflow.visible,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancel',
+                style: AppTheme.bodySmall.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            ModernButton(
+              text: 'Clear All',
+              variant: ButtonVariant.secondary,
+              onPressed: () {
+                setState(() {
+                  toController.clear();
+                  ccController.clear();
+                  bccController.clear();
+                  subjectController.clear();
+                  bodyController.clear();
+                });
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('All fields cleared'),
+                    backgroundColor: AppTheme.successGreen,
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

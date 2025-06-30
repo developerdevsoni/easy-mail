@@ -1,5 +1,7 @@
 import 'package:easy_mail/controllers/auth_controller.dart';
 import 'package:easy_mail/utils/Icon_animation.dart';
+import 'package:easy_mail/utils/app_theme.dart';
+import 'package:easy_mail/widgets/modern_ui_components.dart';
 import 'package:easy_mail/view/email_templet_editor_screen.dart';
 import 'package:easy_mail/view/ai_mail_generator_screen.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +13,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final AuthController controller = Get.put(AuthController());
+  late AnimationController _pulseController;
+  late AnimationController _slideController;
+  late Animation<double> _pulseAnimation;
+  late Animation<Offset> _slideAnimation;
 
   final List<Map<String, String>> personalTemplates = [
     {
@@ -147,334 +153,992 @@ class _HomeScreenState extends State<HomeScreen> {
   String searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _pulseAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.05,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.elasticOut,
+    ));
+    
+    _slideController.forward();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _slideController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F8F2),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// App Bar
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppTheme.backgroundGray,
+              AppTheme.backgroundGray.withOpacity(0.8),
+              AppTheme.primaryBlue.withOpacity(0.05),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              // 🎨 CREATIVE ANIMATED HEADER
+              SliverToBoxAdapter(
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Container(
+                    padding: EdgeInsets.all(AppSpacing.lg),
+                    width: double.infinity,
+                    child: Column(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.grey[300],
-                          backgroundImage: controller.photoUrl.value.isNotEmpty
-                              ? NetworkImage(controller.photoUrl.value)
-                              : null,
-                          child: controller.photoUrl.value.isEmpty
-                              ? Icon(Icons.person,
-                                  size: 30.r, color: Colors.white)
-                              : null,
-                        ),
-                        Text(
-                          'Home',
-                          style: TextStyle(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () async =>
-                              await controller.signOutGoogle(),
-                          icon: const Icon(Icons.logout, color: Colors.black54),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20.h),
-
-                    /// Search Bar
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            searchQuery = value;
-                          });
-                        },
-                        style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                          hintText: 'Search templates...',
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.black,
-                          ),
-                          border: InputBorder.none,
-                          hintStyle: TextStyle(color: Colors.black),
-                          contentPadding: EdgeInsets.symmetric(vertical: 14.h),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-
-                    /// AI Template Creation Card
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(() => const AiMailGeneratorScreen());
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(20.w),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade100,
-                          borderRadius: BorderRadius.circular(18.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.green.shade50,
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
+                        // Header with Profile and Actions
+                        Row(
                           children: [
-                            // Icon(Icons.auto_awesome, color: Colors.green.shade700, size: 36.r),
-                            const AnimatedAutoAwesomeIcon(),
-                            SizedBox(width: 16.w),
+                            // 🌟 ANIMATED PROFILE SECTION
+                            GestureDetector(
+                              onTap: () {
+                                // TODO: Navigate to profile
+                              },
+                              child: AnimatedBuilder(
+                                animation: _pulseAnimation,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: _pulseAnimation.value,
+                                    child: Container(
+                                      padding: EdgeInsets.all(2.r),
+                                      decoration: BoxDecoration(
+                                        gradient: RadialGradient(
+                                          colors: [
+                                            AppTheme.accentGold,
+                                            AppTheme.primaryBlue,
+                                            AppTheme.secondaryTeal,
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(25.r),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                                            blurRadius: 15,
+                                            offset: const Offset(0, 5),
+                                          ),
+                                        ],
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 20.r,
+                                        backgroundColor: AppTheme.surfaceWhite,
+                                        backgroundImage: controller.photoUrl.value.isNotEmpty
+                                            ? NetworkImage(controller.photoUrl.value)
+                                            : null,
+                                        child: controller.photoUrl.value.isEmpty
+                                            ? Icon(
+                                                Icons.person_rounded,
+                                                size: 20.r,
+                                                color: AppTheme.primaryBlue,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SizedBox(width: AppSpacing.sm),
+                            
+                            // ✨ ENHANCED WELCOME SECTION
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Create with AI',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.sp,
-                                      color: Colors.green.shade900,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Welcome back,',
+                                        style: AppTheme.bodySmall.copyWith(
+                                          color: AppTheme.textSecondary,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                      SizedBox(width: AppSpacing.xs),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                        decoration: BoxDecoration(
+                                          gradient: AppTheme.goldGradient,
+                                          borderRadius: BorderRadius.circular(8.r),
+                                        ),
+                                        child: Text(
+                                          '✨ PRO',
+                                          style: AppTheme.caption.copyWith(
+                                            color: AppTheme.surfaceWhite,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    'Let AI help you craft the perfect email template!',
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      color: Colors.green.shade800,
+                                  ShaderMask(
+                                    shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                                    child: Text(
+                                      controller.userName.value.isNotEmpty
+                                          ? controller.userName.value.split(' ').first
+                                          : 'User',
+                                      style: AppTheme.heading3.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Icon(Icons.arrow_forward_ios,
-                                color: Colors.green.shade700, size: 20.r),
+                            
+                            // 🎯 STYLISH ACTION BUTTONS
+                            _buildActionButton(Icons.notifications_none_rounded, AppTheme.textSecondary, () {}),
+                            SizedBox(width: AppSpacing.xs),
+                            _buildActionButton(Icons.logout_rounded, AppTheme.errorRed, () async => await controller.signOutGoogle()),
                           ],
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 24.h),
-
-                    /// Personal Templates
-                    Text(
-                      'Your Templates',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    SizedBox(
-                      height: 120.h,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: personalTemplates.length,
-                        separatorBuilder: (_, __) => SizedBox(width: 12.w),
-                        itemBuilder: (context, index) {
-                          final template = personalTemplates[index];
-                          return GestureDetector(
-                            onTap: () {
-    Get.to(() => EmailTemplateEditorScreen(
-    selectedTemplate: template));
-      // TODO: Navigate to personal template editor
-                            },
-                            child: Container(
-                              width: 220.w,
-                              padding: EdgeInsets.all(14.w),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16.r),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    template['title']!,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13.sp,
-                                      color: Colors.black,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  Text(
-                                    template['subtitle']!,
-                                    style: TextStyle(
-                                      fontSize: 11.sp,
-                                      color: Colors.grey[700],
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Spacer(),
-                                  Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: Icon(Icons.edit,
-                                        color: Colors.green.shade400,
-                                        size: 18.r),
-                                  ),
-                                ],
+                        SizedBox(height: AppSpacing.lg),
+                        
+                        // 🎯 CREATIVE STATS ROW WITH ANIMATIONS
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildAnimatedStatsCard(
+                                'Emails Created',
+                                '24',
+                                'This month',
+                                Icons.email_outlined,
+                                AppTheme.primaryBlue,
+                                0,
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 28.h),
-
-                    /// Filter Chips
-                    SizedBox(
-                      height: 36,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: filters.length,
-                        separatorBuilder: (_, __) => SizedBox(width: 8.w),
-                        itemBuilder: (context, index) {
-                          final filter = filters[index];
-                          final isSelected = selectedFilter == filter;
-                          return ChoiceChip(
-                            label: Text(filter),
-                            selected: isSelected,
-                            onSelected: (_) {
-                              setState(() {
-                                selectedFilter = filter;
-                              });
-                            },
-                            selectedColor: Colors.green.shade600,
-                            backgroundColor: Colors.white,
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 11.sp,
+                            SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: _buildAnimatedStatsCard(
+                                'Templates Used',
+                                '8',
+                                'This week',
+                                Icons.temple_hindu_outlined,
+                                AppTheme.secondaryTeal,
+                                200,
+                              ),
                             ),
-                          );
-                        },
-                      ),
+                          ],
+                        ),
+                        SizedBox(height: AppSpacing.md),
+                      ],
                     ),
-                    SizedBox(height: 18.h),
-                  ],
+                  ),
                 ),
               ),
-            ),
 
-            /// Global Templates Grid
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final template = globalTemplates[index];
-                    // Filter by search and selected filter (if implemented)
-                    if (searchQuery.isNotEmpty &&
-                        !(template['title']!
-                                .toLowerCase()
-                                .contains(searchQuery.toLowerCase()) ||
-                            template['body']!
-                                .toLowerCase()
-                                .contains(searchQuery.toLowerCase()))) {
-                      return SizedBox.shrink();
-                    }
-                    return GestureDetector(
-                      onTap: () {
-                        Get.to(() => EmailTemplateEditorScreen(
-                            selectedTemplate: template));
+              // 🔍 ENHANCED SEARCH SECTION
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: ModernSearchBar(
+                      hintText: '🔍 Search templates, emails...',
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                        });
                       },
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 14.h),
-                        padding: EdgeInsets.all(14.w),
+                      onFilterTap: () {
+                        // TODO: Show filter modal
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              
+              SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+
+              // 🤖 SPECTACULAR AI GENERATOR HERO CARD
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: AnimatedBuilder(
+                    animation: _pulseAnimation,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: 0.98 + (_pulseAnimation.value - 1) * 0.02,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppTheme.primaryBlue,
+                                AppTheme.secondaryTeal,
+                                AppTheme.accentGold.withOpacity(0.8),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(20.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryBlue.withOpacity(0.3),
+                                blurRadius: 25,
+                                offset: const Offset(0, 15),
+                              ),
+                            ],
+                          ),
+                          child: ModernCard(
+                            padding: EdgeInsets.all(AppSpacing.lg),
+                            onTap: () {
+                              Get.to(() => const AiMailGeneratorScreen());
+                            },
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(12.r),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.surfaceWhite.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(15.r),
+                                    border: Border.all(
+                                      color: AppTheme.surfaceWhite.withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: const EnhancedAnimatedIcon(),
+                                ),
+                                SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '✨ Create with AI',
+                                            style: AppTheme.heading2.copyWith(
+                                              color: AppTheme.surfaceWhite,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          SizedBox(width: AppSpacing.xs),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.accentGold,
+                                              borderRadius: BorderRadius.circular(6.r),
+                                            ),
+                                            child: Text(
+                                              'NEW',
+                                              style: AppTheme.caption.copyWith(
+                                                color: AppTheme.surfaceWhite,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: AppSpacing.xs),
+                                      Text(
+                                        'Generate professional emails in seconds using advanced AI technology',
+                                        style: AppTheme.bodyMedium.copyWith(
+                                          color: AppTheme.surfaceWhite.withOpacity(0.9),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                      SizedBox(height: AppSpacing.sm),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.trending_up_rounded,
+                                            color: AppTheme.accentGold,
+                                            size: 14.r,
+                                          ),
+                                          SizedBox(width: AppSpacing.xs),
+                                          Text(
+                                            '95% faster email creation',
+                                            style: AppTheme.bodySmall.copyWith(
+                                              color: AppTheme.accentGold,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: AppTheme.surfaceWhite,
+                                  size: 20.r,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              
+              SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+
+              // 📝 CREATIVE YOUR TEMPLATES SECTION
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8.r),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16.r),
+                          gradient: AppTheme.tealGradient,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Icon(
+                          Icons.folder_special_rounded,
+                          color: AppTheme.surfaceWhite,
+                          size: 16.r,
+                        ),
+                      ),
+                      SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          'Your Templates',
+                          style: AppTheme.heading3.copyWith(fontWeight: FontWeight.w700),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Text(
+                          'See all',
+                          style: AppTheme.bodySmall.copyWith(
+                            color: AppTheme.surfaceWhite,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
+
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 130.h,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: personalTemplates.length,
+                    separatorBuilder: (_, __) => SizedBox(width: AppSpacing.sm),
+                    itemBuilder: (context, index) {
+                      final template = personalTemplates[index];
+                      return Container(
+                        width: 220.w,
+                        constraints: BoxConstraints(maxWidth: 220.w),
+                        child: _buildCreativeFeatureCard(
+                          template['title']!,
+                          template['subtitle']!,
+                          Icons.description_outlined,
+                          AppTheme.tealGradient,
+                          () {
+                            Get.to(() => EmailTemplateEditorScreen(
+                              selectedTemplate: template,
+                            ));
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              
+              SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+
+              // 🏷️ STYLISH FILTER CHIPS
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 35.h,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: filters.length,
+                    separatorBuilder: (_, __) => SizedBox(width: AppSpacing.xs),
+                    itemBuilder: (context, index) {
+                      final filter = filters[index];
+                      final isSelected = selectedFilter == filter;
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 120.w),
+                        child: _buildCreativeChip(filter, isSelected, () {
+                          setState(() {
+                            selectedFilter = filter;
+                          });
+                        }),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              
+              SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
+
+              // 🌟 ENHANCED TEMPLATES GRID
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                sliver: SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final template = globalTemplates[index];
+                      // Filter by search and selected filter (if implemented)
+                      if (searchQuery.isNotEmpty &&
+                          !(template['title']!
+                                  .toLowerCase()
+                                  .contains(searchQuery.toLowerCase()) ||
+                              template['body']!
+                                  .toLowerCase()
+                                  .contains(searchQuery.toLowerCase()))) {
+                        return const SizedBox.shrink();
+                      }
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: (1.sw - AppSpacing.lg * 2 - AppSpacing.sm) / 2,
+                        ),
+                        child: _buildCreativeTemplateCard(
+                          template['title']!,
+                          _getDescriptionFromBody(template['body']!),
+                          _getIconForTemplate(template['title']!),
+                          _getGradientForIndex(index),
+                          index % 3 == 0,
+                          () {
+                            Get.to(() => EmailTemplateEditorScreen(
+                              selectedTemplate: template,
+                            ));
+                          },
+                        ),
+                      );
+                    },
+                    childCount: globalTemplates.length,
+                  ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: AppSpacing.sm,
+                    crossAxisSpacing: AppSpacing.sm,
+                    childAspectRatio: 0.85, // Slightly taller cards
+                  ),
+                ),
+              ),
+              
+              SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton(IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(10.r),
+        decoration: BoxDecoration(
+          color: AppTheme.surfaceWhite,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: color,
+          size: 18.r,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedStatsCard(String title, String value, String subtitle, IconData icon, Color color, int delay) {
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 800 + delay),
+      tween: Tween(begin: 0.0, end: 1.0),
+      curve: Curves.elasticOut,
+      builder: (context, animation, child) {
+        return Transform.translate(
+          offset: Offset(0, 30 * (1 - animation)),
+          child: Opacity(
+            opacity: animation,
+            child: ModernCard(
+              elevated: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [color, color.withOpacity(0.7)],
+                          ),
+                          borderRadius: BorderRadius.circular(10.r),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
+                              color: color.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              template['title']!,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.sp,
-                                color: Colors.black,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              template['body']!,
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                color: Colors.grey[700],
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Spacer(),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Icon(Icons.arrow_forward,
-                                  color: Colors.green.shade400, size: 18.r),
-                            ),
-                          ],
+                        child: Icon(
+                          icon,
+                          color: AppTheme.surfaceWhite,
+                          size: 16.r,
                         ),
                       ),
-                    );
-                  },
-                  childCount: globalTemplates.length,
-                ),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16.h,
-                  crossAxisSpacing: 12.w,
-                  childAspectRatio: 0.85,
-                ),
+                      const Spacer(),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: color.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          subtitle,
+                          style: AppTheme.caption.copyWith(
+                            color: color,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.sm),
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [color, color.withOpacity(0.7)],
+                    ).createShader(bounds),
+                    child: Text(
+                      value,
+                      style: AppTheme.heading2.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                  SizedBox(height: AppSpacing.xs),
+                  Text(
+                    title,
+                    style: AppTheme.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCreativeFeatureCard(String title, String description, IconData icon, Gradient gradient, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.secondaryTeal.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ModernCard(
+          padding: EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8.r),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceWhite.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: AppTheme.surfaceWhite,
+                      size: 16.r,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.star_rounded,
+                    color: AppTheme.accentGold,
+                    size: 16.r,
+                  ),
+                ],
+              ),
+              SizedBox(height: AppSpacing.sm),
+              Text(
+                title,
+                style: AppTheme.bodyLarge.copyWith(
+                  color: AppTheme.surfaceWhite,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: AppSpacing.xs),
+              Text(
+                description,
+                style: AppTheme.bodySmall.copyWith(
+                  color: AppTheme.surfaceWhite.withOpacity(0.8),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreativeChip(String label, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: AppAnimations.fastDuration,
+        curve: AppAnimations.defaultCurve,
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          gradient: isSelected ? AppTheme.primaryGradient : null,
+          color: isSelected ? null : AppTheme.surfaceWhite,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: isSelected ? Colors.transparent : AppTheme.cardGray,
+            width: 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: AppTheme.primaryBlue.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ] : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              Icon(
+                Icons.check_circle_rounded,
+                color: AppTheme.surfaceWhite,
+                size: 14.r,
+              ),
+              SizedBox(width: AppSpacing.xs),
+            ],
+            Text(
+              label,
+              style: AppTheme.bodySmall.copyWith(
+                color: isSelected ? AppTheme.surfaceWhite : AppTheme.textSecondary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCreativeTemplateCard(String title, String description, IconData icon, Gradient gradient, bool isPremium, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryBlue.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ModernCard(
+          elevated: true,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 6.h,
+                decoration: BoxDecoration(
+                  gradient: gradient,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12.r),
+                    topRight: Radius.circular(12.r),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(AppSpacing.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(6.r),
+                          decoration: BoxDecoration(
+                            gradient: gradient,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Icon(
+                            icon,
+                            color: AppTheme.surfaceWhite,
+                            size: 14.r,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isPremium)
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                            decoration: BoxDecoration(
+                              gradient: AppTheme.goldGradient,
+                              borderRadius: BorderRadius.circular(6.r),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.diamond_rounded,
+                                  color: AppTheme.surfaceWhite,
+                                  size: 8.r,
+                                ),
+                                SizedBox(width: 2.w),
+                                Text(
+                                  'PRO',
+                                  style: AppTheme.caption.copyWith(
+                                    color: AppTheme.surfaceWhite,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 8.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: AppSpacing.xs),
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w700),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Expanded(
+                      child: Text(
+                        description,
+                        style: AppTheme.caption.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.favorite_border_rounded,
+                              color: AppTheme.textTertiary,
+                              size: 12.r,
+                            ),
+                            SizedBox(width: 2.w),
+                            Text(
+                              '${(title.hashCode % 50) + 10}',
+                              style: AppTheme.caption.copyWith(
+                                color: AppTheme.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(4.r),
+                          decoration: BoxDecoration(
+                            color: AppTheme.backgroundGray,
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            color: AppTheme.textSecondary,
+                            size: 10.r,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _getIconForTemplate(String title) {
+    if (title.contains('🚀')) return Icons.rocket_launch_rounded;
+    if (title.contains('🎁')) return Icons.card_giftcard_rounded;
+    if (title.contains('📅')) return Icons.event_rounded;
+    if (title.contains('👋')) return Icons.waving_hand_rounded;
+    if (title.contains('💬')) return Icons.feedback_rounded;
+    if (title.contains('📦')) return Icons.local_shipping_rounded;
+    if (title.contains('✅')) return Icons.check_circle_outline_rounded;
+    return Icons.email_rounded;
+  }
+
+  String _getDescriptionFromBody(String body) {
+    // Extract first meaningful line from body
+    final lines = body.split('\n').where((line) => line.trim().isNotEmpty).toList();
+    if (lines.length > 1) {
+      String description = lines[1].trim();
+      return description.length > 60 ? '${description.substring(0, 60)}...' : description;
+    }
+    return body.length > 60 ? '${body.substring(0, 60)}...' : body;
+  }
+
+  Gradient _getGradientForIndex(int index) {
+    final gradients = [
+      AppTheme.primaryGradient,
+      AppTheme.tealGradient,
+      AppTheme.goldGradient,
+    ];
+    return gradients[index % gradients.length];
+  }
+}
+
+// 🌟 ENHANCED ANIMATED ICON
+class EnhancedAnimatedIcon extends StatefulWidget {
+  const EnhancedAnimatedIcon({Key? key}) : super(key: key);
+
+  @override
+  _EnhancedAnimatedIconState createState() => _EnhancedAnimatedIconState();
+}
+
+class _EnhancedAnimatedIconState extends State<EnhancedAnimatedIcon>
+    with TickerProviderStateMixin {
+  late AnimationController _rotationController;
+  late AnimationController _pulseController;
+  
+  @override
+  void initState() {
+    super.initState();
+    _rotationController = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+    
+    _pulseController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _rotationController.dispose();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_rotationController, _pulseController]),
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _rotationController.value * 2 * 3.14159,
+          child: Transform.scale(
+            scale: 1.0 + (_pulseController.value * 0.1),
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              color: AppTheme.surfaceWhite,
+              size: 32.r,
+            ),
+          ),
+        );
+      },
     );
   }
 }
