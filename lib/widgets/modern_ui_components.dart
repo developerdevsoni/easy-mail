@@ -248,7 +248,7 @@ class FeatureCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                   decoration: BoxDecoration(
-                    gradient: AppTheme.goldGradient,
+                    gradient: AppTheme.primaryGradient,
                     borderRadius: BorderRadius.circular(4.r),
                   ),
                   child: Text(
@@ -439,11 +439,11 @@ class PremiumBadge extends StatelessWidget {
         vertical: small ? 1.h : 2.h,
       ),
       decoration: BoxDecoration(
-        gradient: AppTheme.goldGradient,
+        gradient: AppTheme.primaryGradient,
         borderRadius: BorderRadius.circular(small ? 4.r : 6.r),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.accentGold.withOpacity(0.3),
+            color: AppTheme.primaryBlue.withOpacity(0.3),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),

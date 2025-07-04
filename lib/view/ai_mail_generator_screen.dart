@@ -161,7 +161,7 @@ class AiMailGeneratorScreen extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.lightbulb_outline_rounded,
-                          color: AppTheme.accentGold,
+                          color: AppTheme.primaryBlue,
                           size: 16.r,
                         ),
                         SizedBox(width: AppSpacing.xs),
@@ -222,7 +222,7 @@ class AiMailGeneratorScreen extends StatelessWidget {
                 'Thank You Note',
                 'Express gratitude to clients or partners',
                 Icons.favorite_outline_rounded,
-                AppTheme.goldGradient,
+                AppTheme.primaryGradient,
                 controller,
               ),
               
