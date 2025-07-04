@@ -28,7 +28,10 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child: HomeScreen(),
+      // 🚧 DEVELOPMENT BYPASS: Skip authentication and go directly to HomeScreen
+      // TODO: Remove this bypass for production
+      child: HomeScreen(), // 👈 BYPASSING AUTHENTICATION FOR DEVELOPMENT
+      // child: IntroScreen(), // 👈 ORIGINAL CODE - UNCOMMENT FOR PRODUCTION
     );
   }
 }

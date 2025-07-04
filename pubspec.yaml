@@ -43,6 +43,7 @@ dependencies:
    animated_text_kit: ^4.2.3
    url_launcher: ^6.3.1
    flutter_gemini: ^3.0.0
+   shared_preferences: ^2.2.2
 #  quill_html_editor: ^2.2.8
 #  file_picker: 6.2.1
 
