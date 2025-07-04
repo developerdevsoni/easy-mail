@@ -1,3 +1,4 @@
+import 'package:easy_mail/controllers/auth_controller.dart';
 import 'package:easy_mail/view/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,9 @@ class IntroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize AuthController early to check for existing login
+    final AuthController authController = Get.put(AuthController());
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
