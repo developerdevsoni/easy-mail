@@ -4,137 +4,299 @@ import 'package:easy_mail/utils/app_theme.dart';
 import 'package:easy_mail/widgets/modern_ui_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart'; // Make sure this is imported
+import 'package:get/get.dart';
+import 'dart:async';
 
-class TypingPromptField extends StatelessWidget {
-  TypingPromptField({super.key});
+class TypingPromptField extends StatefulWidget {
+  const TypingPromptField({super.key});
 
+  @override
+  State<TypingPromptField> createState() => _TypingPromptFieldState();
+}
+
+class _TypingPromptFieldState extends State<TypingPromptField> {
   final TypingPromptController controller = Get.put(TypingPromptController());
+  final RxBool isAutoTyping = true.obs; // Reactive state for auto-typing
+  final RxBool hasUserInput = false.obs; // Reactive state for user input
+  final RxString currentPlaceholder = "".obs; // Reactive placeholder text
+  Timer? _typingTimer;
+
+  final List<String> _placeholderExamples = [
+    "write your upskelled mail with ai"
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoTyping();
+  }
+
+  @override
+  void dispose() {
+    _typingTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAutoTyping() {
+    if (isAutoTyping.value && !hasUserInput.value) {
+      _typeNextExample();
+    }
+  }
+
+  void _typeNextExample() {
+    if (isAutoTyping.value) {
+      String example = _placeholderExamples[0];
+      int currentLength = 0;
+
+      _typingTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+        if (!isAutoTyping.value) {
+          timer.cancel();
+          return;
+        }
+
+        if (currentLength < example.length) {
+          currentPlaceholder.value = example.substring(0, currentLength + 1);
+          currentLength++;
+        } else {
+          timer.cancel();
+          Future.delayed(const Duration(seconds: 2), () {
+            if (isAutoTyping.value) {
+              currentPlaceholder.value = "";
+              Future.delayed(const Duration(milliseconds: 500), () {
+                _typeNextExample();
+              });
+            }
+          });
+        }
+      });
+    }
+  }
+
+  void _stopAutoTyping() {
+    isAutoTyping.value = false;
+    _typingTimer?.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = TextStyle(
+      fontSize: 14.0.sp,
+      color: AppTheme.textPrimary,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 📝 COMPACT INPUT CONTAINER
-        ModernCard(
-          elevated: false,
-          padding: EdgeInsets.all(AppSpacing.sm),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceWhite,
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withOpacity(0.15),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.05),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Column(
             children: [
               Container(
                 width: double.infinity,
-                constraints: BoxConstraints(minHeight: 80.h),
+                constraints: BoxConstraints(minHeight: 120.h),
                 child: Stack(
                   children: [
-                    // Animated Placeholder
-                    Obx(
-                      () => controller.showAnimation.value
-                          ? Positioned.fill(
-                              child: IgnorePointer(
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 6.h, left: 3.w),
-                                  child: AnimatedTextKit(
-                                    animatedTexts: [
-                                      TypewriterAnimatedText(
-                                        'Describe your email... e.g., "Write a follow-up email to a client about our meeting yesterday"',
-                                        textStyle: AppTheme.bodySmall.copyWith(
-                                          color: AppTheme.textTertiary,
-                                        ),
-                                        speed: const Duration(milliseconds: 80),
-                                      ),
-                                    ],
-                                    repeatForever: true,
-                                    isRepeatingAnimation: true,
-                                    pause: const Duration(milliseconds: 2000),
+                    // Animated placeholder overlay
+                    Obx(() => isAutoTyping.value &&
+                            currentPlaceholder.value.isNotEmpty
+                        ? Positioned.fill(
+                            child: Container(
+                              padding: EdgeInsets.all(20.r),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  currentPlaceholder.value,
+                                  style: textStyle.copyWith(
+                                    color:
+                                        AppTheme.textTertiary.withOpacity(0.4),
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.5,
                                   ),
                                 ),
                               ),
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                    
-                    // Text Input
+                            ),
+                          )
+                        : const SizedBox.shrink()),
                     TextField(
                       controller: controller.textController,
                       maxLines: null,
-                      minLines: 3,
+                      minLines: 5,
                       textInputAction: TextInputAction.done,
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.textPrimary,
+                      style: textStyle.copyWith(
                         fontWeight: FontWeight.w500,
+                        height: 1.5,
+                        fontSize: 15.sp,
                       ),
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: '',
-                        contentPadding: EdgeInsets.zero,
+                        hintText: "Start typing your email prompt...",
+                        hintStyle: textStyle.copyWith(
+                          color: AppTheme.textTertiary.withOpacity(0.6),
+                          fontStyle: FontStyle.italic,
+                          fontSize: 15.sp,
+                        ),
+                        contentPadding: EdgeInsets.all(20.r),
                       ),
-                      onSubmitted: (value) {
-                        controller.submitPrompt(value);
+                      onTap: () {
+                        _stopAutoTyping();
+                        currentPlaceholder.value = "";
+                      },
+                      onChanged: (value) {
+                        if (value.isNotEmpty) {
+                          _stopAutoTyping();
+                          currentPlaceholder.value = "";
+                          hasUserInput.value = true;
+                        } else {
+                          hasUserInput.value = false;
+                          isAutoTyping.value = true;
+                          _startAutoTyping();
+                        }
                       },
                     ),
                   ],
                 ),
               ),
-              
-              SizedBox(height: AppSpacing.sm),
-              
-              // Action Row
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Press Enter to generate',
-                      style: AppTheme.bodySmall.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+              Container(
+                padding: EdgeInsets.all(20.r),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundGray.withOpacity(0.3),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20.r),
+                    bottomRight: Radius.circular(20.r),
+                  ),
+                  border: Border(
+                    top: BorderSide(
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
+                      width: 1,
                     ),
                   ),
-                  SizedBox(width: AppSpacing.xs),
-                  Flexible(
-                    child: Obx(() => !controller.showAnimation.value
-                        ? ModernButton(
-                            text: 'Generate',
-                            variant: ButtonVariant.primary,
-                            loading: controller.isLoading.value,
-                            icon: Icon(
-                              Icons.auto_awesome_rounded,
-                              size: 12.r,
-                              color: AppTheme.surfaceWhite,
-                            ),
-                            onPressed: () {
-                              controller.submitPrompt(controller.textController.text);
-                            },
-                          )
-                        : Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                            decoration: BoxDecoration(
-                              color: AppTheme.backgroundGray,
-                              borderRadius: BorderRadius.circular(6.r),
-                              border: Border.all(color: AppTheme.cardGray),
-                            ),
-                            child: Text(
-                              'Generate',
-                              style: AppTheme.bodySmall.copyWith(
-                                color: AppTheme.textTertiary,
+                ),
+                child: Row(
+                  children: [
+                    // Spacer(),
+                    SizedBox(width: AppSpacing.md),
+                    Flexible(
+                      child: Obx(() => !controller.showAnimation.value
+                          ? Container(
+                              height: 52.h,
+                              decoration: BoxDecoration(
+                                gradient: hasUserInput.value
+                                    ? LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          AppTheme.primaryBlue,
+                                          AppTheme.secondaryTeal,
+                                        ],
+                                      )
+                                    : null,
+                                color: hasUserInput.value
+                                    ? null
+                                    : AppTheme.cardGray.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(16.r),
+                                boxShadow: hasUserInput.value
+                                    ? [
+                                        BoxShadow(
+                                          color: AppTheme.primaryBlue
+                                              .withOpacity(0.3),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ]
+                                    : null,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                  onTap: hasUserInput.value
+                                      ? () {
+                                          _stopAutoTyping();
+                                          controller.submitPrompt(
+                                              controller.textController.text);
+                                        }
+                                      : null,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.auto_awesome_rounded,
+                                        size: 20.r,
+                                        color: hasUserInput.value
+                                            ? AppTheme.surfaceWhite
+                                            : AppTheme.textSecondary,
+                                      ),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        'Generate',
+                                        style: AppTheme.bodyMedium.copyWith(
+                                          color: hasUserInput.value
+                                              ? AppTheme.surfaceWhite
+                                              : AppTheme.textSecondary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              height: 52.h,
+                              padding: EdgeInsets.symmetric(horizontal: 20.w),
+                              decoration: BoxDecoration(
+                                color: AppTheme.cardGray.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.auto_awesome_rounded,
+                                    size: 20.r,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    'Generate',
+                                    style: AppTheme.bodyMedium.copyWith(
+                                      color: AppTheme.textSecondary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
-
         SizedBox(height: AppSpacing.md),
-        
+
         /// 🎯 COMPACT RESULT DISPLAY
         Obx(() {
           if (controller.isLoading.value) {
@@ -216,9 +378,9 @@ class TypingPromptField extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   SizedBox(height: AppSpacing.sm),
-                  
+
                   // Subject
                   Container(
                     width: double.infinity,
@@ -250,7 +412,7 @@ class TypingPromptField extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: AppSpacing.xs),
 
                   // Body
@@ -272,23 +434,20 @@ class TypingPromptField extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: AppSpacing.xs),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxHeight: 120.h),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              email['body'] ?? 'No body content',
-                              style: AppTheme.bodySmall.copyWith(
-                                color: AppTheme.textPrimary,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              overflow: TextOverflow.visible,
+                        SingleChildScrollView(
+                          child: Text(
+                            email['body'] ?? 'No body content',
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.textPrimary,
+                              fontWeight: FontWeight.w400,
                             ),
+                            overflow: TextOverflow.visible,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: AppSpacing.xs),
 
                   // Regards
@@ -323,9 +482,9 @@ class TypingPromptField extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: AppSpacing.sm),
-                  
+
                   // Action Buttons
                   Row(
                     children: [
@@ -339,7 +498,8 @@ class TypingPromptField extends StatelessWidget {
                             color: AppTheme.textPrimary,
                           ),
                           onPressed: () {
-                            controller.submitPrompt(controller.textController.text);
+                            controller
+                                .submitPrompt(controller.textController.text);
                           },
                         ),
                       ),
@@ -371,7 +531,7 @@ class TypingPromptField extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildLoadingAnimation() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -384,7 +544,7 @@ class TypingPromptField extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildLoadingDot(int index) {
     return TweenAnimationBuilder(
       duration: const Duration(milliseconds: 600),
