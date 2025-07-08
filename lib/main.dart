@@ -1,5 +1,7 @@
 import 'package:easy_mail/view/home_screen.dart';
 import 'package:easy_mail/view/intro_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 // import 'package:easy_mail/view/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,7 +9,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'view/google_login_page.dart';
 import 'utils/app_theme.dart';
 
-void main() {
+Future<void> main()  async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  // Pass all uncaught errors from the framework to Crashlytics.
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
   runApp(const MyApp());
 }
 

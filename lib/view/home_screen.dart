@@ -5,6 +5,7 @@ import 'package:easy_mail/view/email_templet_editor_screen.dart';
 import 'package:easy_mail/view/ai_mail_generator_screen.dart';
 import 'package:easy_mail/view/discoverTemplete_screen.dart';
 import 'package:easy_mail/view/my_templates_screen.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -370,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -651,7 +652,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             const Spacer(),
                             GestureDetector(
                               onTap: () {
-                                Get.to(() => MyTemplatesScreen());
+                                FirebaseCrashlytics.instance.crash();
+                                // Get.to(() => MyTemplatesScreen());
                               },
                               child: Text(
                                 'View All',

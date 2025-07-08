@@ -2,14 +2,17 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     id("dev.flutter.flutter-gradle-plugin")
+
 }
 
 android {
-    namespace = "com.easyMail.easy_mail"
+    namespace = "com.sylionixtech.easy_mail"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13113456"
-    compileSdk = 35
+//    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -21,8 +24,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.easyMail.easy_mail"
-        minSdk = flutter.minSdkVersion
+        applicationId = "com.sylionixtech.easy_mail"
+        minSdk = 23/*flutter.minSdkVersion*/
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -48,6 +51,13 @@ android {
             )
         }
     }
+}
+
+dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 }
 
 flutter {

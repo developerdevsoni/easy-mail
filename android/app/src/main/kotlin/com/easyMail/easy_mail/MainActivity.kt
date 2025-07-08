@@ -1,4 +1,4 @@
-package com.easyMail.easy_mail
+package com.sylionixtech.easy_mail
 
 import io.flutter.embedding.android.FlutterActivity
 
