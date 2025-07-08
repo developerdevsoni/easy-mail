@@ -9,7 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'view/google_login_page.dart';
 import 'utils/app_theme.dart';
 
-Future<void> main()  async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // Pass all uncaught errors from the framework to Crashlytics.
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
       },
       // 🚧 DEVELOPMENT BYPASS: Skip authentication and go directly to HomeScreen
       // TODO: Remove this bypass for production
-      child: HomeScreen(), // 👈 BYPASSING AUTHENTICATION FOR DEVELOPMENT
+      child: IntroScreen(), // 👈 BYPASSING AUTHENTICATION FOR DEVELOPMENT
       // child: IntroScreen(), // 👈 ORIGINAL CODE - UNCOMMENT FOR PRODUCTION
     );
   }
