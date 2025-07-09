@@ -5,6 +5,8 @@ import 'package:easy_mail/view/email_templet_editor_screen.dart';
 import 'package:easy_mail/view/ai_mail_generator_screen.dart';
 import 'package:easy_mail/view/discoverTemplete_screen.dart';
 import 'package:easy_mail/view/my_templates_screen.dart';
+import 'package:easy_mail/services/force_update_service.dart';
+import 'package:easy_mail/widgets/update_dialog.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -448,6 +450,63 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     });
+
+    // Initialize and check for force update
+    _initializeForceUpdate();
+  }
+
+  // Initialize force update service and check for updates
+  void _initializeForceUpdate() async {
+    try {
+      // Initialize the force update service
+      await ForceUpdateService().initialize();
+      
+      // Small delay to ensure UI is loaded
+      await Future.delayed(const Duration(milliseconds: 1000));
+      
+      // Check for updates
+      await _checkForUpdate();
+    } catch (e) {
+      print('Force update initialization failed: $e');
+    }
+  }
+
+  // Check for app updates
+  Future<void> _checkForUpdate() async {
+    try {
+      final updateStatus = await ForceUpdateService().checkForUpdate();
+      
+      if (updateStatus != UpdateStatus.noUpdate) {
+        final updateConfig = ForceUpdateService().getUpdateConfig();
+        
+        if (updateConfig != null) {
+          // Show update dialog
+          UpdateDialog.show(
+            updateStatus: updateStatus,
+            updateConfig: updateConfig,
+          );
+        }
+      }
+    } catch (e) {
+      print('Update check failed: $e');
+    }
+  }
+
+  // Test method for force update - triggered by refresh button
+  Future<void> _testForceUpdate() async {
+    try {
+      print('🔍 DEBUG: Manual force update test triggered');
+      
+      // Force refresh the config
+      await ForceUpdateService().forceRefreshConfig();
+      
+      // Check for updates
+      await _checkForUpdate();
+      
+      print('🔍 DEBUG: Manual force update test completed');
+    } catch (e) {
+      print('❌ ERROR: Manual force update test failed: $e');
+    }
   }
 
   @override
@@ -560,6 +619,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     // Action Buttons
                     _buildActionButton(Icons.notifications_none_rounded,
                         AppTheme.textSecondary, () {}),
+                    SizedBox(width: AppSpacing.xs),
+                    // Test button for force update
+                    _buildActionButton(Icons.refresh_rounded, AppTheme.primaryBlue,
+                        () => _testForceUpdate()),
                     SizedBox(width: AppSpacing.xs),
                     _buildActionButton(Icons.logout_rounded, AppTheme.errorRed,
                         () => _showLogoutDialog()),
