@@ -1,4 +1,3 @@
-import 'package:easy_mail/view/discoverTemplete_screen.dart';
 import 'package:easy_mail/view/email_templet_editor_screen.dart';
 import 'package:easy_mail/utils/app_theme.dart';
 import 'package:easy_mail/widgets/modern_ui_components.dart';
@@ -6,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:easy_mail/utils/TypingPromptField.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-// import 'mailEditor_screen.dart';
 import '../controllers/animatedTextWidget.dart';
 
-// Template model for API data
+// Template model for AI suggestions
 class EmailTemplate {
   final String id;
   final String title;
@@ -37,9 +35,7 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
     with TickerProviderStateMixin {
   List<EmailTemplate> templates = [];
   bool isLoading = true;
-  late AnimationController _iconAnimationController;
-  late AnimationController _pulseAnimationController;
-  late Animation<double> _iconRotationAnimation;
+  late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
   @override
@@ -50,115 +46,42 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
   }
 
   void _initializeAnimations() {
-    // Icon rotation animation - more subtle
-    _iconAnimationController = AnimationController(
-      duration: const Duration(seconds: 10),
-      vsync: this,
-    );
-    _iconRotationAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(CurvedAnimation(
-      parent: _iconAnimationController,
-      curve: Curves.easeInOut,
-    ));
-
-    // Pulse animation - very subtle
-    _pulseAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 4000),
+    _pulseController = AnimationController(
+      duration: AppAnimations.slow,
       vsync: this,
     );
     _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
+      begin: 0.98,
+      end: 1.02,
     ).animate(CurvedAnimation(
-      parent: _pulseAnimationController,
-      curve: Curves.easeInOut,
+      parent: _pulseController,
+      curve: AppAnimations.gentleCurve,
     ));
 
-    // Start animations
-    _iconAnimationController.repeat();
-    _pulseAnimationController.repeat(reverse: true);
+    _pulseController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
-    _iconAnimationController.dispose();
-    _pulseAnimationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
   void _showTipsDialog() {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Container(
-            padding: EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: AppTheme.surfaceWhite,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(10.r),
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient,
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Icon(
-                        Icons.lightbulb_outline_rounded,
-                        color: AppTheme.surfaceWhite,
-                        size: 22.r,
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        'Tips for Better Emails',
-                        style: AppTheme.heading3.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.close_rounded,
-                        color: AppTheme.textSecondary,
-                        size: 20.r,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: AppSpacing.md),
-                _buildTipItem(
-                    '🎯 Be specific about the purpose (sales, follow-up, announcement)'),
-                _buildTipItem(
-                    '🎨 Mention the tone you want (formal, casual, friendly)'),
-                _buildTipItem(
-                    '👥 Include key details like recipient type or context'),
-                _buildTipItem('📞 Specify if you need a call-to-action'),
-                _buildTipItem('📧 Mention any attachments or links needed'),
-                _buildTipItem('⏰ Include urgency or timeline if relevant'),
-                SizedBox(height: AppSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  child: ModernButton(
-                    text: 'Got it!',
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ],
+      barrierDismissible: true,
+      barrierLabel: '',
+      barrierColor: AppTheme.textPrimary.withOpacity(0.5),
+      transitionDuration: AppAnimations.standard,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return AppAnimations.slideIn(
+          child: AppAnimations.scaleIn(
+            child: Center(
+              child: Material(
+                type: MaterialType.transparency,
+                child: _buildTipsDialogContent(),
+              ),
             ),
           ),
         );
@@ -166,27 +89,95 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
     );
   }
 
-  Widget _buildTipItem(String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildTipsDialogContent() {
+    return Container(
+      margin: AppSpacing.pagePadding,
+      padding: AppSpacing.cardPadding,
+      decoration: AppTheme.cardElevated.copyWith(
+        borderRadius: BorderRadius.circular(24.r),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            margin: EdgeInsets.only(top: 4.r),
-            width: 4.r,
-            height: 4.r,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryBlue,
-              borderRadius: BorderRadius.circular(2.r),
+          // Header
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(12.r),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                child: Icon(
+                  Icons.lightbulb_outline_rounded,
+                  color: AppTheme.surfaceWhite,
+                  size: 24.r,
+                ),
+              ),
+              AppSpacing.horizontalSpaceMD,
+              Expanded(
+                child: Text(
+                  'Writing Tips',
+                  style: AppTheme.headingLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: Icon(
+                  Icons.close_rounded,
+                  color: AppTheme.textSecondary,
+                  size: 24.r,
+                ),
+              ),
+            ],
+          ),
+          
+          AppSpacing.verticalSpaceLG,
+          
+          // Tips
+          _buildTipItem('🎯', 'Be specific about the purpose and context'),
+          _buildTipItem('🎨', 'Mention the desired tone (formal, casual, friendly)'),
+          _buildTipItem('👥', 'Include recipient details and your relationship'),
+          _buildTipItem('📞', 'Specify any call-to-action needed'),
+          _buildTipItem('📎', 'Mention attachments or links if relevant'),
+          _buildTipItem('⏰', 'Include urgency or timeline details'),
+          
+          AppSpacing.verticalSpaceLG,
+          
+          // Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Get.back(),
+              style: AppTheme.buttonLarge,
+              child: Text('Got it!'),
             ),
           ),
-          SizedBox(width: AppSpacing.sm),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipItem(String emoji, String text) {
+    return Container(
+      margin: EdgeInsets.only(bottom: AppSpacing.md),
+      padding: AppSpacing.cardPadding,
+      decoration: AppTheme.cardBasic.copyWith(
+        color: AppTheme.backgroundSecondary,
+      ),
+      child: Row(
+        children: [
+          Text(
+            emoji,
+            style: AppTheme.headingMedium,
+          ),
+          AppSpacing.horizontalSpaceMD,
           Expanded(
             child: Text(
               text,
               style: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.textPrimary,
                 height: 1.4,
               ),
             ),
@@ -196,54 +187,52 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
     );
   }
 
-  // Simulate API call - replace with actual API call
   Future<void> _loadTemplates() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Simulate loading
+    await Future.delayed(AppAnimations.standard);
 
-    // Mock data - replace with actual API response
     setState(() {
       templates = [
         EmailTemplate(
           id: '1',
-          title: 'Sales',
+          title: 'Sales Email',
           icon: Icons.trending_up_rounded,
           gradient: AppTheme.primaryGradient,
           promptText: 'Write a professional sales follow-up email',
         ),
         EmailTemplate(
           id: '2',
-          title: 'Launch',
+          title: 'Product Launch',
           icon: Icons.rocket_launch_rounded,
-          gradient: AppTheme.tealGradient,
+          gradient: AppTheme.secondaryGradient,
           promptText: 'Create an exciting product launch announcement',
         ),
         EmailTemplate(
           id: '3',
           title: 'Thank You',
           icon: Icons.favorite_outline_rounded,
-          gradient: AppTheme.goldGradient,
+          gradient: AppTheme.accentGradient,
           promptText: 'Write a sincere thank you email',
         ),
         EmailTemplate(
           id: '4',
-          title: 'Meeting',
+          title: 'Meeting Request',
           icon: Icons.meeting_room_rounded,
           gradient: AppTheme.primaryGradient,
-          promptText: 'Schedule a meeting or call',
+          promptText: 'Schedule a meeting or call with someone',
         ),
         EmailTemplate(
           id: '5',
-          title: 'Update',
+          title: 'Project Update',
           icon: Icons.update_rounded,
-          gradient: AppTheme.tealGradient,
+          gradient: AppTheme.secondaryGradient,
           promptText: 'Send a project or status update',
         ),
         EmailTemplate(
           id: '6',
-          title: 'Welcome',
+          title: 'Welcome Message',
           icon: Icons.waving_hand_rounded,
-          gradient: AppTheme.goldGradient,
+          gradient: AppTheme.accentGradient,
           promptText: 'Welcome new clients or team members',
         ),
       ];
@@ -256,346 +245,296 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
     final TypingPromptController controller = Get.put(TypingPromptController());
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundGray,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 🎯 ENHANCED HEADER
-            Container(
-              padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-              decoration: BoxDecoration(
-                color: AppTheme.surfaceWhite,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+      backgroundColor: AppTheme.backgroundPrimary,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.backgroundGradient,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Enhanced Header
+              _buildEnhancedHeader(),
+              
+              // Main Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSpacing.pagePadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Hero Section
+                      AppAnimations.slideIn(
+                        child: _buildHeroSection(),
+                        duration: AppAnimations.standard,
+                      ),
+                      
+                      AppSpacing.verticalSpaceXL,
+                      
+                      // Templates Section
+                      AppAnimations.slideIn(
+                        child: _buildTemplatesSection(),
+                        duration: AppAnimations.complex,
+                        begin: const Offset(0, 0.3),
+                      ),
+                      
+                      AppSpacing.verticalSpaceXL,
+                      
+                      // Prompt Input Section
+                      AppAnimations.slideIn(
+                        child: _buildPromptSection(controller),
+                        duration: AppAnimations.complex,
+                        begin: const Offset(0, 0.5),
+                      ),
+                      
+                      AppSpacing.verticalSpaceLG,
+                    ],
                   ),
-                ],
+                ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.backgroundGray,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(
-                        Icons.arrow_back_rounded,
-                        color: AppTheme.textPrimary,
-                        size: 18.r,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          'AI Email Generator',
-                          style: AppTheme.heading2.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 2.h),
-                        Text(
-                          'Create professional emails with AI',
-                          style: AppTheme.bodySmall.copyWith(
-                            color: AppTheme.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.backgroundGray,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: IconButton(
-                      onPressed: _showTipsDialog,
-                      icon: Icon(
-                        Icons.help_outline_rounded,
-                        color: AppTheme.textSecondary,
-                        size: 18.r,
-                      ),
-                    ),
-                  ),
-                ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedHeader() {
+    return Container(
+      padding: AppSpacing.sectionPadding,
+      decoration: BoxDecoration(
+        gradient: AppTheme.overlayGradient,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24.r),
+          bottomRight: Radius.circular(24.r),
+        ),
+      ),
+      child: Row(
+        children: [
+          // Back Button
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              padding: EdgeInsets.all(12.r),
+              decoration: AppTheme.cardInteractive.copyWith(
+                color: AppTheme.surfaceWhite,
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppTheme.textPrimary,
+                size: 20.r,
               ),
             ),
-
-            // 📝 MAIN CONTENT
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // SizedBox(height: AppSpacing.lg),
-
-                    // 🎯 ENHANCED HERO SECTION
-                    // Container(
-                    //   padding: EdgeInsets.all(AppSpacing.lg),
-                    //   decoration: BoxDecoration(
-                    //     gradient: LinearGradient(
-                    //       begin: Alignment.topLeft,
-                    //       end: Alignment.bottomRight,
-                    //       colors: [
-                    //         AppTheme.primaryBlue.withOpacity(0.05),
-                    //         AppTheme.secondaryTeal.withOpacity(0.05),
-                    //       ],
-                    //     ),
-                    //     borderRadius: BorderRadius.circular(20.r),
-                    //     border: Border.all(
-                    //       color: AppTheme.primaryBlue.withOpacity(0.1),
-                    //       width: 1,
-                    //     ),
-                    //   ),
-                    //   child: Row(
-                    //     children: [
-                    //       // Enhanced Animated Awesome Icon
-                    //       AnimatedBuilder(
-                    //         animation: Listenable.merge([
-                    //           _iconRotationAnimation,
-                    //           _pulseAnimation,
-                    //         ]),
-                    //         builder: (context, child) {
-                    //           return Transform.scale(
-                    //             scale: _pulseAnimation.value,
-                    //             child: Transform.rotate(
-                    //               angle: _iconRotationAnimation.value *
-                    //                   2 *
-                    //                   3.14159,
-                    //               child: Container(
-                    //                 padding: EdgeInsets.all(16.r),
-                    //                 decoration: BoxDecoration(
-                    //                   gradient: LinearGradient(
-                    //                     begin: Alignment.topLeft,
-                    //                     end: Alignment.bottomRight,
-                    //                     colors: [
-                    //                       AppTheme.primaryBlue,
-                    //                       AppTheme.secondaryTeal,
-                    //                     ],
-                    //                   ),
-                    //                   borderRadius: BorderRadius.circular(16.r),
-                    //                   boxShadow: [
-                    //                     BoxShadow(
-                    //                       color: AppTheme.primaryBlue
-                    //                           .withOpacity(0.3),
-                    //                       blurRadius: 15,
-                    //                       offset: const Offset(0, 6),
-                    //                     ),
-                    //                   ],
-                    //                 ),
-                    //                 child: Icon(
-                    //                   Icons.auto_awesome_rounded,
-                    //                   color: AppTheme.surfaceWhite,
-                    //                   size: 28.r,
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //           );
-                    //         },
-                    //       ),
-                    //       SizedBox(width: AppSpacing.md),
-                    //       Expanded(
-                    //         child: Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             Text(
-                    //               'AI-Powered Email Creation',
-                    //               style: AppTheme.heading3.copyWith(
-                    //                 fontWeight: FontWeight.w700,
-                    //                 color: AppTheme.textPrimary,
-                    //               ),
-                    //             ),
-                    //             SizedBox(height: AppSpacing.xs),
-                    //             Text(
-                    //               'Describe your email and let our AI create a professional, engaging message for you',
-                    //               style: AppTheme.bodyMedium.copyWith(
-                    //                 fontWeight: FontWeight.w500,
-                    //                 color: AppTheme.textSecondary,
-                    //                 height: 1.4,
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-
-                    // ),
-
-                    SizedBox(height: AppSpacing.xl),
-
-                    // Enhanced Typing Prompt Field
-                    TypingPromptField(),
-
-                    SizedBox(height: AppSpacing.xl),
-
-                    // 🎯 ENHANCED QUICK TEMPLATES SECTION
-                    Container(
-                      padding: EdgeInsets.all(AppSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceWhite,
-                        borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.05),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(8.r),
-                                decoration: BoxDecoration(
-                                  gradient: AppTheme.tealGradient,
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Icon(
-                                  Icons.category_rounded,
-                                  color: AppTheme.surfaceWhite,
-                                  size: 16.r,
-                                ),
-                              ),
-                              SizedBox(width: AppSpacing.sm),
-                              Text(
-                                'Quick Start Templates',
-                                style: AppTheme.heading3.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              const Spacer(),
-                              if (isLoading)
-                                SizedBox(
-                                  width: 18.r,
-                                  height: 18.r,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppTheme.primaryBlue),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          SizedBox(height: AppSpacing.md),
-                          Text(
-                            'Choose a template to get started quickly',
-                            style: AppTheme.bodyMedium.copyWith(
-                              color: AppTheme.textSecondary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(height: AppSpacing.lg),
-
-                          // Enhanced Grid View
-                          isLoading
-                              ? _buildLoadingGrid()
-                              : _buildTemplatesGrid(controller),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: AppSpacing.xl),
-
-                    // 🚀 ENHANCED ACTION BUTTON
-                    Obx(() {
-                      final generated = controller.result.value;
-                      if (generated.isNotEmpty) {
-                        return Container(
-                          padding: EdgeInsets.all(AppSpacing.lg),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppTheme.primaryBlue.withOpacity(0.05),
-                                AppTheme.secondaryTeal.withOpacity(0.05),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20.r),
-                            border: Border.all(
-                              color: AppTheme.primaryBlue.withOpacity(0.1),
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Ready to Edit?',
-                                style: AppTheme.heading3.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textPrimary,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: AppSpacing.sm),
-                              Text(
-                                'Your AI-generated email is ready for customization',
-                                style: AppTheme.bodyMedium.copyWith(
-                                  color: AppTheme.textSecondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: AppSpacing.lg),
-                              ModernButton(
-                                text: 'Open in Email Editor',
-                                icon: Icon(
-                                  Icons.edit_rounded,
-                                  color: AppTheme.surfaceWhite,
-                                  size: 16.r,
-                                ),
-                                minimumSize: Size(double.infinity, 56.h),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EmailTemplateEditorScreen(
-                                        selectedTemplate: {
-                                          'title': generated["title"],
-                                          'body': generated["body"],
-                                          'regards': generated["regards"]
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    }),
-
-                    SizedBox(height: AppSpacing.xl),
-                  ],
+          ),
+          
+          AppSpacing.horizontalSpaceMD,
+          
+          // Title Section
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  'AI Email Generator',
+                  style: AppTheme.headingLarge.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
+                AppSpacing.verticalSpaceXS,
+                Text(
+                  'Create professional emails with AI assistance',
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          
+          AppSpacing.horizontalSpaceMD,
+          
+          // Tips Button
+          GestureDetector(
+            onTap: _showTipsDialog,
+            child: Container(
+              padding: EdgeInsets.all(12.r),
+              decoration: AppTheme.cardInteractive.copyWith(
+                color: AppTheme.informationBlue.withOpacity(0.1),
+                border: Border.all(
+                  color: AppTheme.informationBlue.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                Icons.help_outline_rounded,
+                color: AppTheme.informationBlue,
+                size: 20.r,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroSection() {
+    return Container(
+      padding: AppSpacing.cardPadding,
+      decoration: AppTheme.cardFeature.copyWith(
+        gradient: AppTheme.overlayGradient,
+      ),
+      child: Column(
+        children: [
+          // AI Icon with Animation
+          AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _pulseAnimation.value,
+                child: Container(
+                  padding: EdgeInsets.all(20.r),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(28.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        blurRadius: 24,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.auto_awesome_rounded,
+                    color: AppTheme.surfaceWhite,
+                    size: 36.r,
+                  ),
+                ),
+              );
+            },
+          ),
+          
+          AppSpacing.verticalSpaceLG,
+          
+          // Title and Description
+          Text(
+            'Generate Perfect Emails',
+            style: AppTheme.headingXLarge.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          AppSpacing.verticalSpaceSM,
+          Text(
+            'Use AI to craft professional, personalized emails in seconds. Choose a template or describe what you need.',
+            style: AppTheme.bodyLarge.copyWith(
+              color: AppTheme.textSecondary,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTemplatesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Quick Start Templates',
+          style: AppTheme.headingMedium.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        AppSpacing.verticalSpaceSM,
+        Text(
+          'Choose a template to get started quickly',
+          style: AppTheme.bodyMedium.copyWith(
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        
+        AppSpacing.verticalSpaceLG,
+        
+        // Templates Grid
+        isLoading
+            ? _buildLoadingGrid()
+            : GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: AppSpacing.md,
+                  crossAxisSpacing: AppSpacing.md,
+                  childAspectRatio: 1.1,
+                ),
+                itemCount: templates.length,
+                itemBuilder: (context, index) {
+                  final template = templates[index];
+                  return AppAnimations.slideIn(
+                    child: _buildTemplateCard(template),
+                    duration: Duration(milliseconds: 300 + (index * 100)),
+                  );
+                },
+              ),
+      ],
+    );
+  }
+
+  Widget _buildTemplateCard(EmailTemplate template) {
+    return GestureDetector(
+      onTap: () {
+        final controller = Get.find<TypingPromptController>();
+        controller.setText(template.promptText);
+      },
+      child: Container(
+        padding: AppSpacing.cardPadding,
+        decoration: AppTheme.cardElevated,
+        child: Column(
+          children: [
+            // Icon
+            Container(
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(
+                gradient: template.gradient,
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Icon(
+                template.icon,
+                color: AppTheme.surfaceWhite,
+                size: 24.r,
+              ),
+            ),
+            
+            AppSpacing.verticalSpaceMD,
+            
+            // Title
+            Text(
+              template.title,
+              style: AppTheme.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            
+            const Spacer(),
+            
+            // Action Arrow
+            Container(
+              padding: EdgeInsets.all(6.r),
+              decoration: BoxDecoration(
+                color: AppTheme.backgroundSecondary,
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                color: AppTheme.primaryBlue,
+                size: 16.r,
               ),
             ),
           ],
@@ -606,43 +545,36 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
 
   Widget _buildLoadingGrid() {
     return GridView.builder(
-      shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: AppSpacing.md,
+        crossAxisCount: 2,
         mainAxisSpacing: AppSpacing.md,
+        crossAxisSpacing: AppSpacing.md,
         childAspectRatio: 1.1,
       ),
-      itemCount: 6, // Show 6 loading placeholders
+      itemCount: 6,
       itemBuilder: (context, index) {
         return Container(
-          decoration: BoxDecoration(
-            color: AppTheme.backgroundGray,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
-              width: 1,
-            ),
-          ),
+          padding: AppSpacing.cardPadding,
+          decoration: AppTheme.cardBasic,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 48.r,
-                height: 48.r,
+                width: 56.r,
+                height: 56.r,
                 decoration: BoxDecoration(
-                  color: AppTheme.cardGray.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12.r),
+                  color: AppTheme.backgroundSecondary,
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
               ),
-              SizedBox(height: AppSpacing.sm),
+              AppSpacing.verticalSpaceMD,
               Container(
-                width: 60.r,
-                height: 10.r,
+                height: 16.h,
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppTheme.cardGray.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(5.r),
+                  color: AppTheme.backgroundSecondary,
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             ],
@@ -652,92 +584,60 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
     );
   }
 
-  Widget _buildTemplatesGrid(TypingPromptController controller) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: AppSpacing.md,
-        mainAxisSpacing: AppSpacing.md,
-        childAspectRatio: 1.1,
-      ),
-      itemCount: templates.length,
-      itemBuilder: (context, index) {
-        final template = templates[index];
-        return _buildQuickTemplateGrid(
-          template.title,
-          template.icon,
-          template.gradient,
-          controller,
-          template.promptText,
-        );
-      },
+  Widget _buildPromptSection(TypingPromptController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Describe Your Email',
+          style: AppTheme.headingMedium.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        AppSpacing.verticalSpaceSM,
+        Text(
+          'Tell us what kind of email you want to create',
+          style: AppTheme.bodyMedium.copyWith(
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        
+        AppSpacing.verticalSpaceLG,
+        
+        // Enhanced Prompt Input
+        Container(
+          decoration: AppTheme.cardElevated,
+          child: TypingPromptField(
+            controller: controller,
+            onGenerate: (prompt) => _handleGenerate(prompt),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildQuickTemplateGrid(
-    String title,
-    IconData icon,
-    Gradient gradient,
-    TypingPromptController controller,
-    String promptText,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        controller.textController.text = promptText;
-        controller.submitPrompt(promptText);
+  void _handleGenerate(String prompt) {
+    if (prompt.trim().isEmpty) {
+      Get.snackbar(
+        'Empty Prompt',
+        'Please describe what kind of email you want to create',
+        backgroundColor: AppTheme.warningOrange.withOpacity(0.1),
+        colorText: AppTheme.warningOrange,
+        borderRadius: 12.r,
+        margin: AppSpacing.pagePadding,
+      );
+      return;
+    }
+
+    // Navigate to email editor with the generated content
+    Get.to(() => EmailTemplateEditorScreen(
+      selectedTemplate: {
+        'title': 'AI Generated Email',
+        'body': 'Generating your email...\n\nPrompt: $prompt',
+        'regards': 'Best regards, [Your Name]',
+        'category': 'AI Generated',
+        'isAI': 'true',
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surfaceWhite,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryBlue.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(14.r),
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(14.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryBlue.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                color: AppTheme.surfaceWhite,
-                size: 24.r,
-              ),
-            ),
-            SizedBox(height: AppSpacing.sm),
-            Text(
-              title,
-              style: AppTheme.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
+    ));
   }
 }
