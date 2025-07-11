@@ -8,12 +8,16 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'view/google_login_page.dart';
 import 'utils/app_theme.dart';
+import 'controllers/auth_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   // Pass all uncaught errors from the framework to Crashlytics.
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+  // Initialize AuthController
+  Get.put(AuthController());
 
   runApp(const MyApp());
 }

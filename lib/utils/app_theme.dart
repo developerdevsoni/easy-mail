@@ -3,74 +3,107 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // 🎨 ENHANCED COLOR PALETTE
+  // 🌌 COSMIC DARK THEME COLOR PALETTE
   
-  // Primary Colors
-  static const Color primaryBlue = Color(0xFF1E40AF);      // Enhanced vibrant blue
-  static const Color primaryBlueDark = Color(0xFF1E3A8A);  // Darker variant
-  static const Color primaryBlueLight = Color(0xFF3B82F6); // Lighter variant
+  // Primary Colors (Deep Purple/Lavender)
+  static const Color primaryPurple = Color(0xFF8B5CF6);        // Vibrant purple
+  static const Color primaryPurpleDark = Color(0xFF7C3AED);    // Darker purple
+  static const Color primaryPurpleLight = Color(0xFFA78BFA);   // Light purple
   
-  // Secondary Colors
-  static const Color secondaryTeal = Color(0xFF059669);     // Warmer teal
-  static const Color secondaryTealDark = Color(0xFF047857); // Darker variant
-  static const Color secondaryTealLight = Color(0xFF10B981); // Lighter variant
+  // Secondary Colors (Cosmic Lavender)
+  static const Color secondaryLavender = Color(0xFFB794F6);    // Soft lavender
+  static const Color secondaryLavenderDark = Color(0xFF9F7AEA); // Darker lavender
+  static const Color secondaryLavenderLight = Color(0xFFCFC9E8); // Light lavender
   
-  // Accent Colors
-  static const Color accentGold = Color(0xFFF59E0B);        // Keep existing
-  static const Color accentGoldDark = Color(0xFFD97706);    // Darker variant
-  static const Color accentGoldLight = Color(0xFFFBBF24);   // Lighter variant
+  // Accent Colors (Cosmic Pink)
+  static const Color accentPink = Color(0xFFF472B6);           // Cosmic pink
+  static const Color accentPinkDark = Color(0xFFEC4899);       // Darker pink
+  static const Color accentPinkLight = Color(0xFFF9A8D4);      // Light pink
   
-  // Surface Colors
-  static const Color surfaceWhite = Color(0xFFFFFFFF);      // Pure white
-  static const Color surfaceElevated = Color(0xFFFFFFFF);   // Elevated surfaces
-  static const Color surfaceOverlay = Color(0xFFFAFBFC);    // Overlay surfaces
+  // Dark Background Colors (Space/Cosmic)
+  static const Color backgroundDark = Color(0xFF0F0F23);       // Deep space
+  static const Color backgroundSecondary = Color(0xFF1A1A2E);  // Secondary dark
+  static const Color backgroundTertiary = Color(0xFF16213E);   // Tertiary dark
   
-  // Background Colors
-  static const Color backgroundPrimary = Color(0xFFFAFBFC); // Softer background
-  static const Color backgroundSecondary = Color(0xFFF1F5F9); // Secondary background
-  static const Color backgroundGray = Color(0xFFF8FAFC);    // Keep for compatibility
+  // Surface Colors (Glass-like)
+  static const Color surfaceDark = Color(0xFF1F1F35);         // Dark surface
+  static const Color surfaceGlass = Color(0xFF2A2A45);        // Glass surface
+  static const Color surfaceElevated = Color(0xFF353553);     // Elevated surface
   
-  // Border & Divider Colors
-  static const Color borderLight = Color(0xFFE5E7EB);       // Light borders
-  static const Color borderMedium = Color(0xFFD1D5DB);      // Medium borders
-  static const Color borderDark = Color(0xFF9CA3AF);        // Dark borders
+  // Text Colors (Light on Dark)
+  static const Color textPrimary = Color(0xFFFFFFFF);         // Pure white
+  static const Color textSecondary = Color(0xFFE5E5E5);       // Light gray
+  static const Color textTertiary = Color(0xFFB0B0B0);        // Medium gray
+  static const Color textMuted = Color(0xFF8A8A8A);           // Muted gray
   
-  // Text Colors
-  static const Color textPrimary = Color(0xFF111827);       // Primary text
-  static const Color textSecondary = Color(0xFF4B5563);     // Secondary text
-  static const Color textTertiary = Color(0xFF6B7280);      // Tertiary text
-  static const Color textMuted = Color(0xFF9CA3AF);         // Muted text
+  // Border & Divider Colors (Subtle)
+  static const Color borderLight = Color(0xFF3A3A55);         // Light border
+  static const Color borderMedium = Color(0xFF2A2A45);        // Medium border
+  static const Color borderDark = Color(0xFF1A1A35);          // Dark border
   
-  // Semantic Colors
-  static const Color informationBlue = Color(0xFF3B82F6);   // Information states
-  static const Color successGreen = Color(0xFF10B981);      // Success states
-  static const Color warningOrange = Color(0xFFF59E0B);     // Warning states
-  static const Color errorRed = Color(0xFFEF4444);          // Error states
+  // Semantic Colors (Cosmic versions)
+  static const Color successGreen = Color(0xFF10B981);        // Success green
+  static const Color warningOrange = Color(0xFFF59E0B);       // Warning orange
+  static const Color errorRed = Color(0xFFEF4444);            // Error red
+  static const Color infoPurple = Color(0xFF8B5CF6);          // Info purple
   
-  // Shadow Colors
-  static const Color shadowLight = Color(0x0A000000);       // Light shadows
-  static const Color shadowMedium = Color(0x14000000);      // Medium shadows
-  static const Color shadowDark = Color(0x1F000000);        // Dark shadows
+  // Shadow Colors (Cosmic glows)
+  static const Color shadowPurple = Color(0x1A8B5CF6);       // Purple glow
+  static const Color shadowPink = Color(0x1AF472B6);         // Pink glow
+  static const Color shadowDark = Color(0x40000000);         // Dark shadow
   
-  // 🌈 GRADIENT SYSTEM
+  // 🌈 COSMIC GRADIENT SYSTEM
   
   // Primary Gradients
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primaryBlue, primaryBlueLight],
+    colors: [primaryPurple, primaryPurpleLight],
   );
   
   static const LinearGradient secondaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [secondaryTeal, secondaryTealLight],
+    colors: [secondaryLavender, secondaryLavenderLight],
   );
   
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [accentGold, accentGoldLight],
+    colors: [accentPink, accentPinkLight],
+  );
+  
+  // Background Gradients (Cosmic)
+  static const LinearGradient backgroundGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [backgroundDark, backgroundSecondary, backgroundTertiary],
+    stops: [0.0, 0.5, 1.0],
+  );
+  
+  static const LinearGradient surfaceGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [surfaceDark, surfaceGlass],
+  );
+  
+  // Cosmic Overlay Gradients
+  static const LinearGradient overlayGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0x1A8B5CF6),  // Purple overlay
+      Color(0x0AF472B6),  // Pink overlay
+    ],
+  );
+  
+  static const LinearGradient glassGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0x15FFFFFF),  // White glass
+      Color(0x0AFFFFFF),  // Transparent glass
+    ],
   );
   
   // Semantic Gradients
@@ -83,7 +116,7 @@ class AppTheme {
   static const LinearGradient warningGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [warningOrange, accentGoldLight],
+    colors: [warningOrange, Color(0xFFFBBF24)],
   );
   
   static const LinearGradient errorGradient = LinearGradient(
@@ -92,29 +125,7 @@ class AppTheme {
     colors: [errorRed, Color(0xFFF87171)],
   );
   
-  // Subtle Gradients
-  static const LinearGradient backgroundGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [backgroundPrimary, backgroundSecondary],
-  );
-  
-  static const LinearGradient surfaceGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [surfaceWhite, backgroundPrimary],
-  );
-  
-  static const LinearGradient overlayGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      Color(0x1A1E40AF),
-      Color(0x0A3B82F6),
-    ],
-  );
-  
-  // 🔤 COMPREHENSIVE TYPOGRAPHY SYSTEM
+  // 🔤 COSMIC TYPOGRAPHY SYSTEM
   
   // Display Styles (Hero content)
   static TextStyle get displayLarge => GoogleFonts.poppins(
@@ -257,95 +268,111 @@ class AppTheme {
   // Legacy button text compatibility
   static TextStyle get buttonText => buttonTextMedium;
   
-  // 📦 CARD DESIGN SYSTEM
+  // 📦 COSMIC CARD DESIGN SYSTEM
   
-  // Basic Card
+  // Glass Card (Main card style) - SVG background cards with white text
   static BoxDecoration get cardBasic => BoxDecoration(
-    color: surfaceWhite,
-    borderRadius: BorderRadius.circular(12.r),
+    color: surfaceDark.withOpacity(0.85),
+    borderRadius: BorderRadius.circular(16.r),
     border: Border.all(
-      color: borderLight,
-      width: 1,
+      color: textPrimary.withOpacity(0.25),
+      width: 1.5,
     ),
     boxShadow: [
       BoxShadow(
-        color: shadowLight,
-        blurRadius: 4,
-        offset: const Offset(0, 1),
-      ),
-    ],
-  );
-  
-  // Elevated Card
-  static BoxDecoration get cardElevated => BoxDecoration(
-    color: surfaceWhite,
-    borderRadius: BorderRadius.circular(16.r),
-    boxShadow: [
-      BoxShadow(
-        color: shadowMedium,
-        blurRadius: 20,
+        color: backgroundDark.withOpacity(0.4),
+        blurRadius: 16,
         offset: const Offset(0, 6),
       ),
       BoxShadow(
-        color: shadowLight,
-        blurRadius: 4,
-        offset: const Offset(0, 1),
-      ),
-    ],
-  );
-  
-  // Interactive Card
-  static BoxDecoration get cardInteractive => BoxDecoration(
-    color: surfaceWhite,
-    borderRadius: BorderRadius.circular(14.r),
-    border: Border.all(
-      color: borderLight,
-      width: 1,
-    ),
-    boxShadow: [
-      BoxShadow(
-        color: shadowLight,
-        blurRadius: 8,
-        offset: const Offset(0, 2),
-      ),
-    ],
-  );
-  
-  // Glass Card
-  static BoxDecoration get cardGlass => BoxDecoration(
-    color: surfaceWhite.withOpacity(0.9),
-    borderRadius: BorderRadius.circular(16.r),
-    border: Border.all(
-      color: borderLight.withOpacity(0.5),
-      width: 1,
-    ),
-    boxShadow: [
-      BoxShadow(
-        color: shadowLight,
-        blurRadius: 20,
+        color: primaryPurple.withOpacity(0.1),
+        blurRadius: 24,
         offset: const Offset(0, 8),
       ),
     ],
   );
   
-  // Feature Card
-  static BoxDecoration get cardFeature => BoxDecoration(
-    color: surfaceWhite,
+  // Elevated Glass Card - Dark visible cards with white text
+  static BoxDecoration get cardElevated => BoxDecoration(
+    color: surfaceDark.withOpacity(0.95),
     borderRadius: BorderRadius.circular(20.r),
     border: Border.all(
-      color: primaryBlue.withOpacity(0.2),
+      color: textPrimary.withOpacity(0.25),
       width: 2,
     ),
     boxShadow: [
       BoxShadow(
-        color: primaryBlue.withOpacity(0.1),
+        color: backgroundDark.withOpacity(0.4),
+        blurRadius: 16,
+        offset: const Offset(0, 6),
+      ),
+      BoxShadow(
+        color: primaryPurple.withOpacity(0.1),
         blurRadius: 24,
         offset: const Offset(0, 8),
       ),
+    ],
+  );
+  
+  // Interactive Card - Dark visible cards with white text
+  static BoxDecoration get cardInteractive => BoxDecoration(
+    color: surfaceDark.withOpacity(0.9),
+    borderRadius: BorderRadius.circular(16.r),
+    border: Border.all(
+      color: textPrimary.withOpacity(0.2),
+      width: 1.5,
+    ),
+    boxShadow: [
       BoxShadow(
-        color: shadowLight,
-        blurRadius: 4,
-        offset: const Offset(0, 2),
+        color: backgroundDark.withOpacity(0.3),
+        blurRadius: 12,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  );
+  
+  // Glass Card with stronger effect
+  static BoxDecoration get cardGlass => BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color(0x20FFFFFF),
+        Color(0x10FFFFFF),
+      ],
+    ),
+    borderRadius: BorderRadius.circular(16.r),
+    border: Border.all(
+      color: Color(0x30FFFFFF),
+      width: 1,
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: shadowPurple,
+        blurRadius: 20,
+        offset: const Offset(0, 8),
+      ),
+    ],
+  );
+  
+  // Feature Card (Hero cards)
+  static BoxDecoration get cardFeature => BoxDecoration(
+    gradient: primaryGradient,
+    borderRadius: BorderRadius.circular(20.r),
+    border: Border.all(
+      color: primaryPurpleLight.withOpacity(0.5),
+      width: 2,
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: shadowPurple,
+        blurRadius: 32,
+        offset: const Offset(0, 12),
+      ),
+      BoxShadow(
+        color: shadowDark,
+        blurRadius: 8,
+        offset: const Offset(0, 4),
       ),
     ],
   );
@@ -356,18 +383,18 @@ class AppTheme {
   static BoxDecoration get glassDecoration => cardGlass;
   
   // Legacy color compatibility
-  static const Color cardGray = borderLight; // Map to new border color
+  static const Color cardGray = borderLight;
   
   // Legacy gradient compatibility
   static LinearGradient get tealGradient => secondaryGradient;
   static LinearGradient get goldGradient => accentGradient;
   
-  // 🔘 BUTTON SYSTEM
+  // 🔘 COSMIC BUTTON SYSTEM
   
-  // Primary Button
+  // Primary Button (Cosmic purple)
   static ButtonStyle get buttonPrimary => ElevatedButton.styleFrom(
-    backgroundColor: primaryBlue,
-    foregroundColor: surfaceWhite,
+    backgroundColor: Colors.transparent,
+    foregroundColor: textPrimary,
     elevation: 0,
     shadowColor: Colors.transparent,
     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
@@ -377,33 +404,35 @@ class AppTheme {
     ),
     textStyle: buttonTextMedium,
   ).copyWith(
+    backgroundColor: MaterialStateProperty.all(Colors.transparent),
     overlayColor: MaterialStateProperty.all(
-      surfaceWhite.withOpacity(0.1),
+      textPrimary.withOpacity(0.1),
     ),
   );
   
-  // Secondary Button
+  // Secondary Button (Glass style)
   static ButtonStyle get buttonSecondary => ElevatedButton.styleFrom(
-    backgroundColor: surfaceWhite,
-    foregroundColor: primaryBlue,
+    backgroundColor: Colors.transparent,
+    foregroundColor: textPrimary,
     elevation: 0,
     shadowColor: Colors.transparent,
     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
     minimumSize: Size(120.w, 48.h),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12.r),
-      side: BorderSide(color: borderMedium, width: 1.5),
+      side: BorderSide(color: borderLight, width: 1.5),
     ),
     textStyle: buttonTextMedium,
   ).copyWith(
+    backgroundColor: MaterialStateProperty.all(Colors.transparent),
     overlayColor: MaterialStateProperty.all(
-      primaryBlue.withOpacity(0.05),
+      textPrimary.withOpacity(0.05),
     ),
   );
   
   // Tertiary Button
   static ButtonStyle get buttonTertiary => TextButton.styleFrom(
-    foregroundColor: primaryBlue,
+    foregroundColor: primaryPurple,
     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
     minimumSize: Size(80.w, 44.h),
     shape: RoundedRectangleBorder(
@@ -414,8 +443,8 @@ class AppTheme {
   
   // Large Button
   static ButtonStyle get buttonLarge => ElevatedButton.styleFrom(
-    backgroundColor: primaryBlue,
-    foregroundColor: surfaceWhite,
+    backgroundColor: Colors.transparent,
+    foregroundColor: textPrimary,
     elevation: 0,
     shadowColor: Colors.transparent,
     padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -428,8 +457,8 @@ class AppTheme {
   
   // Small Button
   static ButtonStyle get buttonSmall => ElevatedButton.styleFrom(
-    backgroundColor: primaryBlue,
-    foregroundColor: surfaceWhite,
+    backgroundColor: Colors.transparent,
+    foregroundColor: textPrimary,
     elevation: 0,
     shadowColor: Colors.transparent,
     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -442,7 +471,7 @@ class AppTheme {
   
   // Icon Button
   static ButtonStyle get buttonIcon => IconButton.styleFrom(
-    backgroundColor: backgroundSecondary,
+    backgroundColor: surfaceGlass,
     foregroundColor: textPrimary,
     padding: EdgeInsets.all(12.w),
     minimumSize: Size(44.w, 44.h),
@@ -455,11 +484,11 @@ class AppTheme {
   static ButtonStyle get primaryButtonStyle => buttonPrimary;
   static ButtonStyle get secondaryButtonStyle => buttonSecondary;
   static ButtonStyle get accentButtonStyle => ElevatedButton.styleFrom(
-    backgroundColor: accentGold,
-    foregroundColor: surfaceWhite,
+    backgroundColor: Colors.transparent,
+    foregroundColor: textPrimary,
   );
   
-  // 📱 INPUT SYSTEM
+  // 📱 COSMIC INPUT SYSTEM
   
   static InputDecoration inputDecoration({
     required String hintText,
@@ -470,15 +499,15 @@ class AppTheme {
     labelText: labelText,
     hintText: hintText,
     hintStyle: bodyMedium.copyWith(color: textMuted),
-    labelStyle: labelMedium,
+    labelStyle: labelMedium.copyWith(color: textSecondary),
     prefixIcon: prefixIcon,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: backgroundSecondary,
+    fillColor: surfaceGlass.withOpacity(0.3),
     contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12.r),
-      borderSide: BorderSide.none,
+      borderSide: BorderSide(color: borderLight, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12.r),
@@ -486,7 +515,7 @@ class AppTheme {
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12.r),
-      borderSide: BorderSide(color: primaryBlue, width: 2),
+      borderSide: BorderSide(color: primaryPurple, width: 2),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12.r),
@@ -508,36 +537,41 @@ class AppTheme {
       size: 20.r,
     ),
     filled: true,
-    fillColor: backgroundSecondary,
+    fillColor: surfaceGlass.withOpacity(0.3),
     contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(24.r),
-      borderSide: BorderSide.none,
+      borderSide: BorderSide(color: borderLight, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(24.r),
-      borderSide: BorderSide.none,
+      borderSide: BorderSide(color: borderLight, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(24.r),
-      borderSide: BorderSide(color: primaryBlue, width: 2),
+      borderSide: BorderSide(color: primaryPurple, width: 2),
     ),
   );
   
-  // 🎨 THEME DATA
+  // 🎨 COSMIC THEME DATA
   static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
+    brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryBlue,
-      brightness: Brightness.light,
-      primary: primaryBlue,
-      secondary: secondaryTeal,
-      tertiary: accentGold,
-      surface: surfaceWhite,
-      background: backgroundPrimary,
+      seedColor: primaryPurple,
+      brightness: Brightness.dark,
+      primary: primaryPurple,
+      secondary: secondaryLavender,
+      tertiary: accentPink,
+      surface: surfaceDark,
+      background: backgroundDark,
       error: errorRed,
+      onPrimary: textPrimary,
+      onSecondary: textPrimary,
+      onSurface: textPrimary,
+      onBackground: textPrimary,
     ),
-    scaffoldBackgroundColor: backgroundPrimary,
+    scaffoldBackgroundColor: backgroundDark,
     fontFamily: GoogleFonts.poppins().fontFamily,
     
     // AppBar Theme
@@ -555,9 +589,9 @@ class AppTheme {
     
     // Card Theme
     cardTheme: CardTheme(
-      color: surfaceWhite,
+      color: Colors.transparent,
       elevation: 0,
-      shadowColor: shadowLight,
+      shadowColor: shadowPurple,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
       ),
@@ -572,11 +606,11 @@ class AppTheme {
     // Input Theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: backgroundSecondary,
+      fillColor: surfaceGlass.withOpacity(0.3),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: borderLight, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
@@ -584,7 +618,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.r),
-        borderSide: BorderSide(color: primaryBlue, width: 2),
+        borderSide: BorderSide(color: primaryPurple, width: 2),
       ),
     ),
     

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_mail/utils/app_theme.dart';
 import 'package:easy_mail/view/email_templet_editor_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class DiscoverTemplatesPage extends StatefulWidget {
@@ -256,29 +257,32 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
     List<String> meaningfulLines = [];
     for (String line in lines) {
       String lowerLine = line.toLowerCase();
-      if (lowerLine.startsWith('hi ') || 
-          lowerLine.startsWith('hello ') || 
-          lowerLine.startsWith('dear ') ||
-          lowerLine.startsWith('regards') ||
-          lowerLine.startsWith('best regards') ||
-          lowerLine.startsWith('sincerely') ||
-          lowerLine.startsWith('thanks') ||
-          lowerLine.startsWith('thank you') ||
-          lowerLine.startsWith('cheers') ||
-          lowerLine.startsWith('yours') ||
-          lowerLine.contains('[name]') ||
-          lowerLine.contains('[your name]')) {
+      // Skip only very basic greetings and signatures
+      if (lowerLine.startsWith('hi [') || 
+          lowerLine.startsWith('hello [') || 
+          lowerLine.startsWith('dear [') ||
+          lowerLine.startsWith('regards,') ||
+          lowerLine.startsWith('best regards,') ||
+          lowerLine.startsWith('sincerely,') ||
+          lowerLine.startsWith('thanks,') ||
+          lowerLine.startsWith('thank you,') ||
+          lowerLine.startsWith('cheers,') ||
+          lowerLine.startsWith('yours,') ||
+          line.trim().isEmpty ||
+          line.trim() == '[Your Name]' ||
+          line.trim() == '[Name]') {
         continue;
       }
       meaningfulLines.add(line);
-      if (meaningfulLines.length >= 2) break;
+      if (meaningfulLines.length >= 3) break; // Show up to 3 lines
     }
     
     if (meaningfulLines.isEmpty) {
-      return lines.take(2).join(' ');
+      // If no meaningful lines found, show first 2-3 lines excluding placeholders
+      return lines.take(3).join(' ').replaceAll('[Name]', 'recipient').replaceAll('[Your Name]', 'sender');
     }
     
-    return meaningfulLines.join(' ');
+    return meaningfulLines.join(' ').replaceAll('[Name]', 'recipient').replaceAll('[Your Name]', 'sender');
   }
 
   @override
@@ -290,9 +294,9 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.backgroundGray,
-              AppTheme.backgroundGray.withOpacity(0.8),
-              AppTheme.primaryBlue.withOpacity(0.05),
+              AppTheme.backgroundDark,
+              AppTheme.backgroundDark.withOpacity(0.8),
+              AppTheme.primaryPurple.withOpacity(0.05),
             ],
           ),
         ),
@@ -315,7 +319,7 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
                     Expanded(
                       child: Text(
                         'All Templates',
-                        style: AppTheme.heading2.copyWith(
+                        style: AppTheme.headingMedium.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
                         textAlign: TextAlign.center,
@@ -332,11 +336,11 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
                 child: Container(
                   height: 48.h,
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceWhite,
+                    color: AppTheme.textPrimary,
                     borderRadius: BorderRadius.circular(12.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        color: AppTheme.primaryPurple.withOpacity(0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),
@@ -417,7 +421,7 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
                                       : null,
                                   color: isSelected
                                       ? null
-                                      : AppTheme.surfaceWhite,
+                                      : AppTheme.textPrimary,
                                   borderRadius: BorderRadius.circular(18.r),
                                   border: isSelected
                                       ? null
@@ -428,7 +432,7 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
                                   boxShadow: [
                                     BoxShadow(
                                       color: isSelected
-                                          ? AppTheme.primaryBlue.withOpacity(0.25)
+                                          ? AppTheme.primaryPurple.withOpacity(0.25)
                                           : AppTheme.textTertiary.withOpacity(0.05),
                                       blurRadius: isSelected ? 10 : 4,
                                       offset: Offset(0, isSelected ? 3 : 1),
@@ -440,8 +444,8 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
                                     category,
                                     style: AppTheme.bodySmall.copyWith(
                                       color: isSelected
-                                          ? AppTheme.surfaceWhite
-                                          : AppTheme.textPrimary,
+                                          ? AppTheme.textPrimary
+                                          : AppTheme.backgroundDark,
                                       fontWeight: isSelected
                                           ? FontWeight.w600
                                           : FontWeight.w500,
@@ -463,143 +467,123 @@ class _DiscoverTemplatesPageState extends State<DiscoverTemplatesPage> {
               
               // Templates Grid
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: _getFilteredTemplates().isNotEmpty
-                      ? GridView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 12.h,
-                            crossAxisSpacing: 12.w,
-                            childAspectRatio: 0.8,
-                          ),
-                          itemCount: _getFilteredTemplates().length,
-                          itemBuilder: (context, index) {
-                            final template = _getFilteredTemplates()[index];
-                            return AnimatedContainer(
-                              duration: Duration(milliseconds: 300 + (index * 50)),
-                              curve: Curves.easeOutBack,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(() => EmailTemplateEditorScreen(
-                                    selectedTemplate: template,
-                                  ));
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        AppTheme.surfaceWhite,
-                                        AppTheme.backgroundGray.withOpacity(0.1),
+                child: _getFilteredTemplates().isNotEmpty
+                    ? GridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12.h,
+                          crossAxisSpacing: 12.w,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: _getFilteredTemplates().length,
+                        itemBuilder: (context, index) {
+                          final template = _getFilteredTemplates()[index];
+                          return AnimatedContainer(
+                            duration: Duration(milliseconds: 300 + (index * 50)),
+                            curve: Curves.easeOutBack,
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(() => EmailTemplateEditorScreen(
+                                  selectedTemplate: template,
+                                ));
+                              },
+                              child: Stack(
+                                children: [
+                                  // Card SVG Background
+                                  Positioned.fill(
+                                    child: SvgPicture.asset(
+                                      'assets/svg_images/card.svg',
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                  
+                                  // Content
+                                  Container(
+                                    padding: EdgeInsets.all(16.w),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Category Badge at top
+                                        if (template['category'] != null)
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.primaryPurple.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(6.r),
+                                            ),
+                                            child: Text(
+                                              template['category']!,
+                                              style: AppTheme.caption.copyWith(
+                                                color: AppTheme.primaryPurple,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 9.sp,
+                                              ),
+                                            ),
+                                          ),
+                                        
+                                        SizedBox(height: 12.h),
+                                        
+                                        // Title (no maxLines limit to show complete title)
+                                        Text(
+                                          template['title'] ?? 'Untitled',
+                                          style: AppTheme.bodyLarge.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: AppTheme.textPrimary,
+                                            height: 1.2,
+                                          ),
+                                        ),
+                                        
+                                        SizedBox(height: 8.h),
+                                        
+                                        // Preview
+                                        Expanded(
+                                          child: Text(
+                                            _getEmailPreview(template['body'] ?? ''),
+                                            style: AppTheme.bodySmall.copyWith(
+                                              color: AppTheme.textSecondary,
+                                              height: 1.3,
+                                            ),
+                                            maxLines: 6,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    borderRadius: BorderRadius.circular(12.r),
-                                    border: Border.all(
-                                      color: AppTheme.cardGray.withOpacity(0.3),
-                                      width: 1,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppTheme.primaryBlue.withOpacity(0.06),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
                                   ),
-                                  padding: EdgeInsets.all(12.w),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(6.r),
-                                            decoration: BoxDecoration(
-                                              gradient: AppTheme.primaryGradient,
-                                              borderRadius: BorderRadius.circular(7.r),
-                                            ),
-                                            child: Icon(
-                                              Icons.email_rounded,
-                                              color: AppTheme.surfaceWhite,
-                                              size: 16.r,
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          Container(
-                                            padding: EdgeInsets.all(4.r),
-                                            decoration: BoxDecoration(
-                                              color: AppTheme.backgroundGray,
-                                              borderRadius: BorderRadius.circular(4.r),
-                                            ),
-                                            child: Icon(
-                                              Icons.arrow_forward_rounded,
-                                              color: AppTheme.primaryBlue,
-                                              size: 12.r,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 12.h),
-                                      Text(
-                                        template['title'] ?? 'Untitled',
-                                        style: AppTheme.bodyMedium.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 12.sp,
-                                          height: 1.2,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      SizedBox(height: 8.h),
-                                      Expanded(
-                                        child: Text(
-                                          _getEmailPreview(template['body'] ?? ''),
-                                          style: AppTheme.caption.copyWith(
-                                            color: AppTheme.textSecondary,
-                                            fontSize: 10.sp,
-                                            height: 1.3,
-                                          ),
-                                          maxLines: 4,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                ],
                               ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.inbox_outlined,
-                                size: 48.r,
+                            ),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inbox_outlined,
+                              size: 48.r,
+                              color: AppTheme.textTertiary,
+                            ),
+                            SizedBox(height: 16.h),
+                            Text(
+                              'No templates found',
+                              style: AppTheme.bodyMedium.copyWith(
                                 color: AppTheme.textTertiary,
                               ),
-                              SizedBox(height: 16.h),
-                              Text(
-                                'No templates found',
-                                style: AppTheme.bodyMedium.copyWith(
-                                  color: AppTheme.textTertiary,
-                                ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              'Try adjusting your search or category',
+                              style: AppTheme.caption.copyWith(
+                                color: AppTheme.textTertiary,
                               ),
-                              SizedBox(height: 8.h),
-                              Text(
-                                'Try adjusting your search or category',
-                                style: AppTheme.caption.copyWith(
-                                  color: AppTheme.textTertiary,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                ),
+                      ),
               ),
             ],
           ),

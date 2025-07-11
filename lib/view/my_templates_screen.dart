@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_mail/utils/app_theme.dart';
 import 'package:easy_mail/view/email_templet_editor_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class MyTemplatesScreen extends StatefulWidget {
@@ -135,9 +136,9 @@ class _MyTemplatesScreenState extends State<MyTemplatesScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.backgroundGray,
-              AppTheme.backgroundGray.withOpacity(0.8),
-              AppTheme.backgroundGray.withOpacity(0.9),
+              AppTheme.backgroundDark,
+              AppTheme.backgroundDark.withOpacity(0.8),
+              AppTheme.backgroundDark.withOpacity(0.9),
             ],
           ),
         ),
@@ -177,7 +178,7 @@ class _MyTemplatesScreenState extends State<MyTemplatesScreen> {
                           borderRadius: BorderRadius.circular(8.r),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              color: AppTheme.primaryPurple.withOpacity(0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -185,7 +186,7 @@ class _MyTemplatesScreenState extends State<MyTemplatesScreen> {
                         ),
                         child: Icon(
                           Icons.add_rounded,
-                          color: AppTheme.surfaceWhite,
+                          color: AppTheme.textPrimary,
                           size: 18.r,
                         ),
                       ),
@@ -200,7 +201,7 @@ class _MyTemplatesScreenState extends State<MyTemplatesScreen> {
                 child: Container(
                   height: 48.h,
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceWhite,
+                    color: AppTheme.textPrimary,
                     borderRadius: BorderRadius.circular(12.r),
                     boxShadow: [
                       BoxShadow(
@@ -307,184 +308,141 @@ class _MyTemplatesScreenState extends State<MyTemplatesScreen> {
               
               // Templates Grid
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: _getFilteredTemplates().isNotEmpty
-                      ? GridView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 12.h,
-                            crossAxisSpacing: 12.w,
-                            childAspectRatio: 0.75,
-                          ),
-                          itemCount: _getFilteredTemplates().length,
-                          itemBuilder: (context, index) {
-                            final template = _getFilteredTemplates()[index];
-                            return AnimatedContainer(
-                              duration: Duration(milliseconds: 300 + (index * 50)),
-                              curve: Curves.easeOutBack,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.to(() => EmailTemplateEditorScreen(
-                                    selectedTemplate: template,
-                                  ));
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.surfaceWhite.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(16.r),
-                                    border: Border.all(
-                                      color: AppTheme.surfaceWhite.withOpacity(0.3),
-                                      width: 1,
+                child: _getFilteredTemplates().isNotEmpty
+                    ? GridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12.h,
+                          crossAxisSpacing: 12.w,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: _getFilteredTemplates().length,
+                        itemBuilder: (context, index) {
+                          final template = _getFilteredTemplates()[index];
+                          return AnimatedContainer(
+                            duration: Duration(milliseconds: 300 + (index * 50)),
+                            curve: Curves.easeOutBack,
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.to(() => EmailTemplateEditorScreen(
+                                  selectedTemplate: template,
+                                ));
+                              },
+                              child: Stack(
+                                children: [
+                                  // Card SVG Background
+                                  Positioned.fill(
+                                    child: SvgPicture.asset(
+                                      'assets/svg_images/card.svg',
+                                      fit: BoxFit.fill,
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.03),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
                                   ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16.r),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Colors.white.withOpacity(0.1),
-                                            Colors.white.withOpacity(0.05),
-                                          ],
-                                        ),
-                                      ),
-                                      padding: EdgeInsets.all(14.w),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                template['createdDate']!,
-                                                style: AppTheme.caption.copyWith(
-                                                  color: AppTheme.textTertiary,
-                                                  fontSize: 9.sp,
-                                                ),
-                                              ),
-                                              const Spacer(),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                  horizontal: 8.w,
-                                                  vertical: 3.h,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: AppTheme.textTertiary.withOpacity(0.1),
-                                                  borderRadius: BorderRadius.circular(6.r),
-                                                ),
-                                                child: Text(
-                                                  'Custom',
-                                                  style: AppTheme.caption.copyWith(
-                                                    color: AppTheme.textSecondary,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 10.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(width: 8.w),
-                                              Container(
-                                                padding: EdgeInsets.all(4.r),
-                                                decoration: BoxDecoration(
-                                                  gradient: AppTheme.primaryGradient,
-                                                  borderRadius: BorderRadius.circular(4.r),
-                                                ),
-                                                child: Icon(
-                                                  Icons.edit_rounded,
-                                                  color: AppTheme.surfaceWhite,
-                                                  size: 12.r,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 12.h),
-                                          Text(
-                                            template['title'] ?? 'Untitled',
-                                            style: AppTheme.bodyMedium.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                              color: AppTheme.textPrimary,
-                                              fontSize: 14.sp,
-                                              height: 1.2,
+                                  
+                                  // Content
+                                  Container(
+                                    padding: EdgeInsets.all(16.w),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Category Badge at top
+                                        if (template['category'] != null)
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.primaryPurple.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(6.r),
                                             ),
-                                            maxLines: 2,
+                                            child: Text(
+                                              template['category']!,
+                                              style: AppTheme.caption.copyWith(
+                                                color: AppTheme.primaryPurple,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 9.sp,
+                                              ),
+                                            ),
+                                          ),
+                                        
+                                        SizedBox(height: 12.h),
+                                        
+                                        // Title (no maxLines limit to show complete title)
+                                        Text(
+                                          template['title'] ?? 'Untitled',
+                                          style: AppTheme.bodyLarge.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: AppTheme.textPrimary,
+                                            height: 1.2,
+                                          ),
+                                        ),
+                                        
+                                        SizedBox(height: 8.h),
+                                        
+                                        // Preview
+                                        Expanded(
+                                          child: Text(
+                                            _getEmailPreview(template['body'] ?? ''),
+                                            style: AppTheme.bodySmall.copyWith(
+                                              color: AppTheme.textSecondary,
+                                              height: 1.3,
+                                            ),
+                                            maxLines: 6,
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          SizedBox(height: 8.h),
-                                          Expanded(
-                                            child: Text(
-                                              _getEmailPreview(template['body'] ?? ''),
-                                              style: AppTheme.caption.copyWith(
-                                                color: AppTheme.textSecondary,
-                                                height: 1.3,
-                                                fontSize: 11.sp,
-                                              ),
-                                              maxLines: 4,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(24.r),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppTheme.textTertiary.withOpacity(0.1),
-                                      AppTheme.textTertiary.withOpacity(0.05),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(20.r),
+                            ),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(24.r),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.textTertiary.withOpacity(0.1),
+                                    AppTheme.textTertiary.withOpacity(0.05),
+                                  ],
                                 ),
-                                child: Icon(
-                                  Icons.create_new_folder_outlined,
-                                  size: 48.r,
-                                  color: AppTheme.textTertiary,
-                                ),
+                                borderRadius: BorderRadius.circular(20.r),
                               ),
-                              SizedBox(height: 16.h),
-                              Text(
-                                searchQuery.isNotEmpty 
-                                    ? 'No templates found'
-                                    : 'No custom templates yet',
-                                style: AppTheme.bodyMedium.copyWith(
-                                  color: AppTheme.textTertiary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              child: Icon(
+                                Icons.create_new_folder_outlined,
+                                size: 48.r,
+                                color: AppTheme.textTertiary,
                               ),
-                              SizedBox(height: 8.h),
-                              Text(
-                                searchQuery.isNotEmpty
-                                    ? 'Try adjusting your search'
-                                    : 'Create your first custom template',
-                                style: AppTheme.caption.copyWith(
-                                  color: AppTheme.textTertiary,
-                                ),
-                                textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 16.h),
+                            Text(
+                              searchQuery.isNotEmpty 
+                                  ? 'No templates found'
+                                  : 'No custom templates yet',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.textTertiary,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              searchQuery.isNotEmpty
+                                  ? 'Try adjusting your search'
+                                  : 'Create your first custom template',
+                              style: AppTheme.caption.copyWith(
+                                color: AppTheme.textTertiary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                ),
+                      ),
               ),
             ],
           ),

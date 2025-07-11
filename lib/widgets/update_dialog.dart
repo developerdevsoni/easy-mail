@@ -109,14 +109,14 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppTheme.surfaceWhite,
-                        AppTheme.backgroundGray.withOpacity(0.1),
+                        AppTheme.textPrimary,
+                        AppTheme.backgroundDark.withOpacity(0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(24.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.15),
+                        color: AppTheme.primaryPurple.withOpacity(0.15),
                         blurRadius: 30,
                         offset: const Offset(0, 10),
                       ),
@@ -170,12 +170,12 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
             width: 80.w,
             height: 80.h,
             decoration: BoxDecoration(
-              color: AppTheme.surfaceWhite.withOpacity(0.2),
+              color: AppTheme.textPrimary.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
               isForceUpdate ? Icons.priority_high_rounded : Icons.update_rounded,
-              color: AppTheme.surfaceWhite,
+              color: AppTheme.textPrimary,
               size: 40.r,
             ),
           ),
@@ -185,7 +185,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
               ? (widget.updateConfig['force_update_title'] ?? 'Update Required')
               : (widget.updateConfig['update_title'] ?? 'Update Available'),
             style: AppTheme.heading2.copyWith(
-              color: AppTheme.surfaceWhite,
+              color: AppTheme.textPrimary,
               fontWeight: FontWeight.w800,
             ),
             textAlign: TextAlign.center,
@@ -220,10 +220,10 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: AppTheme.backgroundGray,
+              color: AppTheme.backgroundDark,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryPurple.withOpacity(0.1),
                 width: 1,
               ),
             ),
@@ -252,7 +252,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                 ),
                 Icon(
                   Icons.arrow_forward_rounded,
-                  color: AppTheme.primaryBlue,
+                  color: AppTheme.primaryPurple,
                   size: 20.r,
                 ),
                 Column(
@@ -270,7 +270,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                       widget.updateConfig['current_version'] ?? '1.0.0',
                       style: AppTheme.bodyMedium.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryBlue,
+                        color: AppTheme.primaryPurple,
                       ),
                     ),
                   ],
@@ -296,10 +296,10 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundGray,
+        color: AppTheme.backgroundDark,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: AppTheme.accentGold.withOpacity(0.2),
+          color: AppTheme.warningOrange.withOpacity(0.2),
           width: 1,
         ),
       ),
@@ -310,7 +310,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
             children: [
               Icon(
                 Icons.new_releases_outlined,
-                color: AppTheme.accentGold,
+                color: AppTheme.warningOrange,
                 size: 16.r,
               ),
               SizedBox(width: 8.w),
@@ -334,7 +334,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                   height: 4.w,
                   margin: EdgeInsets.only(top: 6.h, right: 8.w),
                   decoration: const BoxDecoration(
-                    color: AppTheme.accentGold,
+                    color: AppTheme.warningOrange,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -381,7 +381,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                 borderRadius: BorderRadius.circular(16.r),
                 boxShadow: [
                   BoxShadow(
-                    color: (isForceUpdate ? const Color(0xFFFF6B6B) : AppTheme.primaryBlue)
+                    color: (isForceUpdate ? const Color(0xFFFF6B6B) : AppTheme.primaryPurple)
                         .withOpacity(0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
@@ -392,7 +392,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                 child: Text(
                   widget.updateConfig['update_button_text'] ?? 'Update Now',
                   style: AppTheme.bodyMedium.copyWith(
-                    color: AppTheme.surfaceWhite,
+                    color: AppTheme.textPrimary,
                     fontWeight: FontWeight.w700,
                     fontSize: 16.sp,
                   ),
@@ -410,7 +410,7 @@ class _UpdateDialogWidgetState extends State<_UpdateDialogWidget> with TickerPro
                 width: double.infinity,
                 height: 48.h,
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceWhite,
+                  color: AppTheme.textPrimary,
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
                     color: AppTheme.textTertiary.withOpacity(0.3),

@@ -12,7 +12,28 @@
           "package_name": "com.sylionixtech.easy_mail"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "964301047830-k0ff6jkihnrr9fbofkus4oid3ne605ol.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sylionixtech.easy_mail",
+            "certificate_hash": "1ad055c333bccf5f0a57593c1963d34282fddb8d"
+          }
+        },
+        {
+          "client_id": "964301047830-oddv4httetgukfdcjne2ffisuoq9b4r0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sylionixtech.easy_mail",
+            "certificate_hash": "0c1c53ee9904112c97492b067b7d43de6e891adc"
+          }
+        },
+        {
+          "client_id": "964301047830-6cfp6rk0fah6agoo6ia70c6e1b6re6hq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAhfgaY1uxKh8LqRyFup-Zxx2Gn0yJHQik"
@@ -20,7 +41,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "964301047830-6cfp6rk0fah6agoo6ia70c6e1b6re6hq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

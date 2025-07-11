@@ -11,6 +11,9 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'dart:math' as math;
+import 'dart:ui';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -73,42 +76,69 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     },
   ];
 
-  final List<Map<String, String>> globalTemplates = [
-    // Business Templates
+  final List<Map<String, String>> predefinedTemplates = [
     {
-      'title': '📋 Meeting Request',
+      'title': '🔥 New Feature Launch',
       'body':
-          'Dear [Name],\n\nI would like to schedule a meeting to discuss [Topic]. Please let me know your availability for next week.',
+          'Hey [Name],\n\nWe\'re excited to announce our latest feature - [Feature Name]! This new addition will help you [benefit].',
+      'regards': 'Cheers, [Your Name]',
+      'category': 'Product Updates'
+    },
+    {
+      'title': '🎁 Special Offer Just for You',
+      'body':
+          'Hi [Name],\n\nWe have an exclusive offer just for you! Get [discount]% off on [product/service].',
+      'regards': 'Best deals, [Your Name]',
+      'category': 'Promotions'
+    },
+    {
+      'title': '📊 Monthly Report Summary',
+      'body':
+          'Dear [Name],\n\nHere\'s your monthly summary:\n\n📈 Key Metrics:\n• [Metric 1]: [Value]\n• [Metric 2]: [Value]\n\n🎯 Goals for next month:\n• [Goal 1]\n• [Goal 2]',
+      'regards': 'Best regards, [Your Name]',
+      'category': 'Reports'
+    },
+    {
+      'title': '💡 Quick Question',
+      'body':
+          'Hi [Name],\n\nI hope you\'re doing well! I have a quick question about [topic].',
+      'regards': 'Thanks, [Your Name]',
+      'category': 'Inquiry'
+    },
+    {
+      'title': '🚀 Project Kickoff',
+      'body':
+          'Hello [Name],\n\nI\'m excited to start working on [project name] with you!\n\n📅 Timeline: [dates]\n🎯 Key objectives:\n• [Objective 1]\n• [Objective 2]',
+      'regards': 'Looking forward, [Your Name]',
+      'category': 'Project Management'
+    },
+    {
+      'title': '🤝 Partnership Proposal',
+      'body':
+          'Dear [Name],\n\nI hope this email finds you well. I\'d like to discuss a potential partnership opportunity between our companies.',
       'regards': 'Best regards, [Your Name]',
       'category': 'Business'
     },
     {
-      'title': '📄 Proposal Submission',
+      'title': '🎉 Congratulations!',
       'body':
-          'Dear [Name],\n\nPlease find attached our proposal for [Project Name]. We look forward to your feedback and next steps.',
-      'regards': 'Sincerely, [Your Name]',
-      'category': 'Business'
+          'Hi [Name],\n\nCongratulations on [achievement]! This is a fantastic milestone.',
+      'regards': 'Cheers, [Your Name]',
+      'category': 'Congratulations'
     },
     {
-      'title': '🤝 Partnership Inquiry',
+      'title': '📅 Meeting Request',
       'body':
-          'Hello [Name],\n\nWe are interested in exploring potential partnership opportunities between our companies. Could we schedule a call to discuss?',
+          'Hi [Name],\n\nI\'d like to schedule a meeting to discuss [topic]. Are you available on [date/time]?',
       'regards': 'Best regards, [Your Name]',
-      'category': 'Business'
+      'category': 'Meetings'
     },
     {
-      'title': '🎯 New Campaign Launch',
+      'title': '🔔 Important Update',
       'body':
-          'Hi [Name],\n\nWe\'re excited to introduce our latest campaign! Don\'t miss out on exclusive offers and updates.',
-      'regards': 'The Marketing Team',
-      'category': 'Marketing'
-    },
-    {
-      'title': '🎁 Holiday Offer – Limited Time Only!',
-      'body':
-          'Hey [Name],\n\nWe ve got something special just for you — enjoy 40% OFF everything in our store until December 31st!',
-      'regards': 'Warm wishes, The [Company] Team',
-      'category': 'Sales'
+          'Dear [Name],\n\nI wanted to inform you about an important update regarding [subject].',
+      'regards': 'Best regards, [Your Name]',
+      'category': 'Updates'
     },
     {
       'title': '📅 Webinar Reminder – Starts in 1 Hour',
@@ -171,31 +201,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _checkForUpdate() async {
     try {
-      final updateStatus = await ForceUpdateService().checkForUpdate();
-      
-      if (updateStatus != UpdateStatus.noUpdate) {
-        final updateConfig = ForceUpdateService().getUpdateConfig();
-        
-        if (updateConfig != null) {
-          UpdateDialog.show(
-            updateStatus: updateStatus,
-            updateConfig: updateConfig,
-          );
-        }
-      }
+      await ForceUpdateService().checkForUpdate();
     } catch (e) {
-      print('Update check failed: $e');
-    }
-  }
-
-  Future<void> _testForceUpdate() async {
-    try {
-      print('🔍 DEBUG: Manual force update test triggered');
-      await ForceUpdateService().forceRefreshConfig();
-      await _checkForUpdate();
-      print('🔍 DEBUG: Manual force update test completed');
-    } catch (e) {
-      print('❌ ERROR: Manual force update test failed: $e');
+      print('Force update check failed: $e');
     }
   }
 
@@ -209,56 +217,84 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundPrimary,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.backgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Enhanced Header
-              _buildEnhancedHeader(),
-              
-              // Scrollable Content
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      // Hero AI Generator Card
-                      AppAnimations.slideIn(
-                        child: _buildHeroAICard(),
-                        duration: AppAnimations.standard,
-                      ),
-                      
-                      AppSpacing.verticalSpaceXL,
-                      
-                      // My Templates Section
-                      AppAnimations.slideIn(
-                        child: _buildMyTemplatesSection(),
-                        duration: AppAnimations.complex,
-                        begin: const Offset(-0.3, 0),
-                      ),
-                      
-                      AppSpacing.verticalSpaceXL,
-                      
-                      // Global Templates Section
-                      AppAnimations.slideIn(
-                        child: _buildGlobalTemplatesSection(),
-                        duration: AppAnimations.complex,
-                        begin: const Offset(0.3, 0),
-                      ),
-                      
-                      AppSpacing.verticalSpaceLG,
+      backgroundColor:AppTheme.secondaryLavenderLight,
+      body: Stack(
+        children: [
+          // SVG Background
+          Positioned.fill(
+            child: SvgPicture.asset(
+              'assets/svg_images/home_bg.svg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          
+          // Blur and overlay
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.backgroundDark.withOpacity(0.1),
+                      AppTheme.backgroundDark.withOpacity(0.3),
+                      AppTheme.backgroundDark.withOpacity(0.4),
                     ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          
+          // Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Enhanced Header
+                _buildEnhancedHeader(),
+                
+                // Scrollable Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        // Hero AI Generator Card
+                        AppAnimations.slideIn(
+                          child: _buildHeroAICard(),
+                          duration: AppAnimations.standard,
+                        ),
+                        
+                        AppSpacing.verticalSpaceSM,
+                        
+                        // My Templates Section
+                        AppAnimations.slideIn(
+                          child: _buildMyTemplatesSection(),
+                          duration: AppAnimations.complex,
+                          begin: const Offset(-0.3, 0),
+                        ),
+                        
+                        // AppSpacing.verticalSpaceMD,
+                        
+                        // Global Templates Section
+                        AppAnimations.slideIn(
+                          child: _buildGlobalTemplatesSection(),
+                          duration: AppAnimations.complex,
+                          begin: const Offset(0.3, 0),
+                        ),
+                        
+                        AppSpacing.verticalSpaceXS,
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: AppAnimations.scaleIn(
         child: _buildAnimatedFAB(),
@@ -269,12 +305,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildEnhancedHeader() {
     return Container(
-      padding: AppSpacing.pagePadding,
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       decoration: BoxDecoration(
         gradient: AppTheme.overlayGradient,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24.r),
-          bottomRight: Radius.circular(24.r),
+          bottomLeft: Radius.circular(20.r),
+          bottomRight: Radius.circular(20.r),
         ),
       ),
       child: Row(
@@ -303,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ? controller.userName.value.split(' ').first
                             : 'User',
                         style: AppTheme.headingLarge.copyWith(
-                          color: AppTheme.surfaceWhite,
+                          color: AppTheme.textPrimary,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -320,15 +356,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           AppSpacing.horizontalSpaceXS,
           _buildActionButton(
-            Icons.refresh_rounded,
-            AppTheme.informationBlue,
-            () => _testForceUpdate(),
-          ),
-          AppSpacing.horizontalSpaceXS,
-          _buildActionButton(
             Icons.logout_rounded,
             AppTheme.errorRed,
-            () => _showLogoutDialog(),
+            () {
+              Get.dialog(
+                AlertDialog(
+                  backgroundColor: AppTheme.backgroundSecondary,
+                  title: Text(
+                    'Logout',
+                    style: AppTheme.headingMedium.copyWith(
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  content: Text(
+                    'Are you sure you want to logout?',
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Get.back(),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Get.back();
+                        controller.signOutGoogle();
+                      },
+                      child: Text(
+                        'Logout',
+                        style: TextStyle(color: AppTheme.errorRed),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -336,42 +403,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildProfileSection() {
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _pulseAnimation.value,
+    return Obx(() => GestureDetector(
+          onTap: () {
+            Get.snackbar(
+              'Profile',
+              'Profile settings coming soon!',
+              backgroundColor: AppTheme.infoPurple.withOpacity(0.1),
+              colorText: AppTheme.infoPurple,
+              borderRadius: 12.r,
+              margin: AppSpacing.pagePadding,
+            );
+          },
           child: Container(
-            padding: EdgeInsets.all(3.r),
+            padding: EdgeInsets.all(4.r),
             decoration: BoxDecoration(
               gradient: AppTheme.primaryGradient,
-              borderRadius: BorderRadius.circular(28.r),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.4),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  color: AppTheme.primaryPurple.withOpacity(0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: Obx(() => CircleAvatar(
-                  radius: 22.r,
-                  backgroundColor: AppTheme.surfaceWhite,
-                  backgroundImage: controller.photoUrl.value.isNotEmpty
-                      ? NetworkImage(controller.photoUrl.value)
-                      : null,
-                  child: controller.photoUrl.value.isEmpty
-                      ? Icon(
-                          Icons.person_rounded,
-                          size: 24.r,
-                          color: AppTheme.primaryBlue,
-                        )
-                      : null,
-                )),
+            child: CircleAvatar(
+              radius: 18.r,
+              backgroundColor: AppTheme.textPrimary,
+                             child: controller.photoUrl.value.isNotEmpty
+                   ? ClipOval(
+                       child: Image.network(
+                         controller.photoUrl.value,
+                         width: 32.r,
+                         height: 32.r,
+                         fit: BoxFit.cover,
+                       ),
+                     )
+                   : Icon(
+                       Icons.person_rounded,
+                       color: AppTheme.primaryPurple,
+                       size: 20.r,
+                     ),
+            ),
           ),
-        );
-      },
-    );
+        ));
   }
 
   Widget _buildActionButton(IconData icon, Color color, VoidCallback onTap) {
@@ -380,7 +455,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Container(
         padding: EdgeInsets.all(12.r),
         decoration: AppTheme.cardInteractive.copyWith(
-          color: AppTheme.surfaceWhite,
+          color: AppTheme.textPrimary,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.2),
@@ -404,74 +479,85 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: GestureDetector(
         onTap: () => Get.to(() => const AiMailGeneratorScreen()),
         child: Container(
-          padding: AppSpacing.cardPadding,
-          decoration: AppTheme.cardFeature.copyWith(
-            gradient: AppTheme.primaryGradient,
+          padding: EdgeInsets.all(20.w),
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceDark.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: AppTheme.textPrimary.withOpacity(0.2),
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.3),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-              ),
-              BoxShadow(
-                color: AppTheme.shadowMedium,
-                blurRadius: 8,
+                color: AppTheme.backgroundDark.withOpacity(0.3),
+                blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: Row(
+          child: Column(
             children: [
               // AI Icon
               Container(
-                padding: EdgeInsets.all(16.r),
+                padding: EdgeInsets.all(12.r),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceWhite.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: Icon(
-                  Icons.auto_awesome_rounded,
-                  color: AppTheme.surfaceWhite,
-                  size: 32.r,
-                ),
-              ),
-              
-              AppSpacing.horizontalSpaceMD,
-              
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '✨ Create with AI',
-                      style: AppTheme.headingLarge.copyWith(
-                        color: AppTheme.surfaceWhite,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    AppSpacing.verticalSpaceXS,
-                    Text(
-                      'Generate professional emails instantly using advanced AI',
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.surfaceWhite.withOpacity(0.9),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Arrow
-              Container(
-                padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(
-                  color: AppTheme.surfaceWhite.withOpacity(0.2),
+                  color: AppTheme.primaryPurple,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
-                  Icons.arrow_forward_rounded,
-                  color: AppTheme.surfaceWhite,
-                  size: 20.r,
+                  Icons.auto_awesome_rounded,
+                  color: AppTheme.textPrimary,
+                  size: 24.r,
+                ),
+              ),
+              
+              AppSpacing.verticalSpaceMD,
+              
+              // Title and Description
+              Text(
+                'AI Email Generator',
+                style: AppTheme.headingLarge.copyWith(
+                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              AppSpacing.verticalSpaceXS,
+              Text(
+                'Create professional emails in seconds using AI',
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textSecondary,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              
+              AppSpacing.verticalSpaceMD,
+              
+              // CTA Button
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryPurple,
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      color: AppTheme.textPrimary,
+                      size: 14.r,
+                    ),
+                    AppSpacing.horizontalSpaceXS,
+                    Text(
+                      'Generate Now',
+                      style: AppTheme.labelMedium.copyWith(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -487,156 +573,61 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       children: [
         // Section Header
         Padding(
-          padding: AppSpacing.sectionPadding,
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          // padding: AppSpacing.pagePadding,
           child: Row(
             children: [
-              Text(
-                'My Templates',
-                style: AppTheme.headingMedium.copyWith(
-                  fontWeight: FontWeight.w800,
+              Icon(
+                Icons.bookmark_rounded,
+                color: AppTheme.primaryPurple,
+                size: 20.r,
+              ),
+              AppSpacing.horizontalSpaceSM,
+              Expanded(
+                child: Text(
+                  'My Templates',
+                  style: AppTheme.headingMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
               ),
-              const Spacer(),
               GestureDetector(
                 onTap: () => Get.to(() => MyTemplatesScreen()),
-                child: Text(
-                  'View All',
-                  style: AppTheme.labelMedium.copyWith(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        AppSpacing.verticalSpaceSM,
-        
-        // Templates Horizontal List
-        Container(
-          height: 140.h,
-          child: myTemplates.isNotEmpty
-              ? ListView.builder(
-                  padding: AppSpacing.sectionPadding,
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: myTemplates.length,
-                  itemBuilder: (context, index) {
-                    final template = myTemplates[index];
-                    return Container(
-                      width: 260.w,
-                      margin: EdgeInsets.only(
-                        right: index == myTemplates.length - 1 ? 0 : AppSpacing.md,
-                      ),
-                      child: AppAnimations.slideIn(
-                        child: _buildMyTemplateCard(template),
-                        duration: Duration(milliseconds: 400 + (index * 100)),
-                      ),
-                    );
-                  },
-                )
-              : _buildEmptyState('No custom templates yet', Icons.bookmark_border_rounded),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMyTemplateCard(Map<String, String> template) {
-    return GestureDetector(
-      onTap: () => Get.to(() => EmailTemplateEditorScreen(selectedTemplate: template)),
-      child: Container(
-        padding: AppSpacing.cardPadding,
-        decoration: AppTheme.cardElevated,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    color: AppTheme.informationBlue.withOpacity(0.1),
+                    color: AppTheme.textPrimary.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Text(
-                    'Custom',
-                    style: AppTheme.labelSmall.copyWith(
-                      color: AppTheme.informationBlue,
-                      fontWeight: FontWeight.w600,
+                    border: Border.all(
+                      color: AppTheme.textPrimary.withOpacity(0.5),
+                      width: 0.5,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.backgroundDark.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  template['createdDate'] ?? '',
-                  style: AppTheme.caption.copyWith(
-                    color: AppTheme.textMuted,
-                  ),
-                ),
-              ],
-            ),
-            
-            AppSpacing.verticalSpaceMD,
-            
-            // Title
-            Text(
-              template['title'] ?? 'Untitled',
-              style: AppTheme.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            
-            AppSpacing.verticalSpaceSM,
-            
-            // Preview
-            Expanded(
-              child: Text(
-                _getEmailPreview(template['body'] ?? ''),
-                style: AppTheme.bodySmall.copyWith(
-                  color: AppTheme.textSecondary,
-                  height: 1.4,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlobalTemplatesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Header
-        Padding(
-          padding: AppSpacing.sectionPadding,
-          child: Row(
-            children: [
-              Text(
-                'Email Templates',
-                style: AppTheme.headingMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => Get.to(() => DiscoverTemplatesPage()),
-                child: Text(
-                  'View All',
-                  style: AppTheme.labelMedium.copyWith(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'View All',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.primaryPurple,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 4.w),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        color: AppTheme.primaryPurple,
+                        size: 14.r,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -644,26 +635,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
         
-        AppSpacing.verticalSpaceSM,
+        AppSpacing.verticalSpaceMD,
         
         // Templates Grid
-        Padding(
-          padding: AppSpacing.sectionPadding,
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: AppSpacing.md,
-              crossAxisSpacing: AppSpacing.md,
-              childAspectRatio: 0.85,
-            ),
-            itemCount: _getFilteredTemplates().length,
+        SizedBox(
+          height: 140.h,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemCount: myTemplates.length,
             itemBuilder: (context, index) {
-              final template = _getFilteredTemplates()[index];
-              return AppAnimations.slideIn(
-                child: _buildTemplateCard(template, index),
-                duration: Duration(milliseconds: 300 + (index * 50)),
+              return Container(
+                width: 200.w,
+                margin: EdgeInsets.only(
+                  right: 12.w,
+                  left: index == 0 ? 24.w : 0,
+                ),
+                child: _buildTemplateCard(myTemplates[index], index),
               );
             },
           ),
@@ -672,100 +660,161 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTemplateCard(Map<String, String> template, int index) {
-    return GestureDetector(
-      onTap: () => Get.to(() => EmailTemplateEditorScreen(selectedTemplate: template)),
-      child: Container(
-        padding: AppSpacing.cardPadding,
-        decoration: AppTheme.cardBasic,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon and Category
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.r),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Icon(
-                    _getIconForTemplate(template['title'] ?? ''),
-                    color: AppTheme.surfaceWhite,
-                    size: 16.r,
+  Widget _buildGlobalTemplatesSection() {
+    return Padding(
+      padding: AppSpacing.pagePadding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            children: [
+              // Icon(
+              //   Icons.public_rounded,
+              //   color: AppTheme.primaryPurple,
+              //   size: 20.r,
+              // ),
+              // AppSpacing.horizontalSpaceSM,
+              Expanded(
+                child: Text(
+                  'Discover Templates',
+                  style: AppTheme.headingMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
-                const Spacer(),
-                Container(
-                  padding: EdgeInsets.all(6.r),
+              ),
+              GestureDetector(
+                onTap: () => Get.to(() => DiscoverTemplatesPage()),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    color: AppTheme.backgroundSecondary,
+                    color: AppTheme.textPrimary.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: AppTheme.textPrimary.withOpacity(0.5),
+                      width: 0.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.backgroundDark.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  child: Icon(
-                    Icons.arrow_forward_rounded,
-                    color: AppTheme.primaryBlue,
-                    size: 12.r,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'View All',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.primaryPurple,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 4.w),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        color: AppTheme.primaryPurple,
+                        size: 14.r,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            
-            AppSpacing.verticalSpaceMD,
-            
-            // Title
-            Text(
-              template['title'] ?? 'Untitled',
-              style: AppTheme.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            ],
+          ),
+          
+          AppSpacing.verticalSpaceMD,
+          
+          // Templates Grid
+          GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12.h,
+              crossAxisSpacing: 12.w,
+              childAspectRatio: 0.75,
             ),
-            
-            AppSpacing.verticalSpaceSM,
-            
-            // Preview
-            Expanded(
-              child: Text(
-                _getEmailPreview(template['body'] ?? ''),
-                style: AppTheme.bodySmall.copyWith(
-                  color: AppTheme.textSecondary,
-                  height: 1.4,
-                ),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+            itemCount: 6, // Show only 6 templates
+            itemBuilder: (context, index) {
+              return _buildTemplateCard(predefinedTemplates[index], index);
+            },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEmptyState(String message, IconData icon) {
-    return Container(
-      height: 140.h,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 48.r,
-              color: AppTheme.textMuted,
+  Widget _buildTemplateCard(Map<String, String> template, int index) {
+    return GestureDetector(
+      onTap: () => Get.to(() => EmailTemplateEditorScreen(selectedTemplate: template)),
+      child: Stack(
+        children: [
+          // Card SVG Background
+          Positioned.fill(
+            child: SvgPicture.asset(
+              'assets/svg_images/card.svg',
+              fit: BoxFit.fill,
             ),
-            AppSpacing.verticalSpaceSM,
-            Text(
-              message,
-              style: AppTheme.bodyMedium.copyWith(
-                color: AppTheme.textMuted,
-              ),
+          ),
+          
+          // Content
+          Container(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Category Badge at top
+                if (template['category'] != null)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryPurple.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Text(
+                      template['category']!,
+                      style: AppTheme.caption.copyWith(
+                        color: AppTheme.primaryPurple,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 9.sp,
+                      ),
+                    ),
+                  ),
+                
+                SizedBox(height: 12.h),
+                
+                // Title (no maxLines limit to show complete title)
+                Text(
+                  template['title'] ?? 'Untitled',
+                  style: AppTheme.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                    height: 1.2,
+                  ),
+                ),
+                
+                SizedBox(height: 8.h),
+                
+                // Preview
+                Expanded(
+                  child: Text(
+                    _getEmailBodyPreview(template['body'] ?? ''),
+                    style: AppTheme.bodySmall.copyWith(
+                      color: AppTheme.textSecondary,
+                      height: 1.3,
+                    ),
+                    maxLines: 6,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -778,185 +827,165 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: AnimatedOpacity(
         opacity: _showFab ? 1.0 : 0.0,
         duration: AppAnimations.standard,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(20.r),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.4),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: FloatingActionButton(
-            onPressed: () => Get.to(() => const AiMailGeneratorScreen()),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            child: Icon(
-              Icons.auto_awesome_rounded,
-              color: AppTheme.surfaceWhite,
-              size: 28.r,
-            ),
-          ),
+        child: CosmicFloatingActionButton(
+          onPressed: () => Get.to(() => const AiMailGeneratorScreen()),
+          icon: Icons.auto_awesome_rounded,
         ),
       ),
     );
   }
 
-  // Helper methods
-  String _getEmailPreview(String body) {
-    if (body.isEmpty) return 'No content available';
-
-    List<String> lines = body
-        .split('\n')
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-
-    List<String> meaningfulLines = [];
-    for (String line in lines) {
-      String lowerLine = line.toLowerCase();
-      if (lowerLine.startsWith('hi ') ||
-          lowerLine.startsWith('hello ') ||
-          lowerLine.startsWith('dear ') ||
-          lowerLine.startsWith('hey ') ||
-          line.contains('[name]') ||
-          line.contains('[client name]') ||
-          line.length < 10) {
-        continue;
-      }
-      meaningfulLines.add(line);
-      if (meaningfulLines.length >= 2) break;
-    }
-
-    return meaningfulLines.isNotEmpty
-        ? meaningfulLines.join(' ')
-        : lines.isNotEmpty
-            ? lines.first
-            : 'No content';
-  }
-
-  IconData _getIconForTemplate(String title) {
-    if (title.isEmpty) return Icons.email_rounded;
-    if (title.contains('🚀')) return Icons.rocket_launch_rounded;
-    if (title.contains('🎁')) return Icons.card_giftcard_rounded;
-    if (title.contains('📅')) return Icons.event_rounded;
-    if (title.contains('👋')) return Icons.waving_hand_rounded;
-    if (title.contains('📧')) return Icons.email_rounded;
-    if (title.contains('📝')) return Icons.edit_rounded;
-    if (title.contains('🎯')) return Icons.flag_rounded;
-    if (title.contains('🎉')) return Icons.celebration_rounded;
-    if (title.contains('📞')) return Icons.phone_rounded;
-    if (title.contains('💼')) return Icons.business_rounded;
-    return Icons.email_rounded;
-  }
-
-  List<Map<String, String>> _getFilteredTemplates() {
-    return globalTemplates.take(6).toList();
-  }
-
-  void _showLogoutDialog() {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      barrierColor: AppTheme.textPrimary.withOpacity(0.5),
-      transitionDuration: AppAnimations.standard,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return AppAnimations.slideIn(
-          child: AppAnimations.scaleIn(
-            child: Center(
-              child: Material(
-                type: MaterialType.transparency,
-                child: _buildLogoutDialogContent(),
-              ),
+  Widget _buildAnimatedCategoryText(String category) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Check if text fits in available space
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: category,
+            style: AppTheme.caption.copyWith(
+              color: AppTheme.primaryPurple,
+              fontWeight: FontWeight.w600,
+              fontSize: 9.sp,
             ),
           ),
+          maxLines: 1,
+          textDirection: TextDirection.ltr,
         );
+        textPainter.layout(maxWidth: double.infinity);
+
+        if (textPainter.size.width <= constraints.maxWidth) {
+          // Text fits, show normally
+          return Text(
+            category,
+            style: AppTheme.caption.copyWith(
+              color: AppTheme.primaryPurple,
+              fontWeight: FontWeight.w600,
+              fontSize: 9.sp,
+            ),
+            maxLines: 1,
+          );
+        } else {
+          // Text doesn't fit, show with ellipsis
+          return SizedBox(
+            width: constraints.maxWidth,
+            height: 16.h,
+            child: Text(
+              category,
+              style: AppTheme.caption.copyWith(
+                color: AppTheme.primaryPurple,
+                fontWeight: FontWeight.w600,
+                fontSize: 9.sp,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+        }
       },
     );
   }
 
-  Widget _buildLogoutDialogContent() {
-    return Container(
-      margin: AppSpacing.pagePadding,
-      padding: AppSpacing.cardPadding,
-      decoration: AppTheme.cardElevated.copyWith(
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: AppTheme.primaryBlue.withOpacity(0.1),
-          width: 2,
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Icon
-          Container(
-            padding: EdgeInsets.all(16.r),
-            decoration: BoxDecoration(
-              color: AppTheme.errorRed.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(50.r),
-            ),
-            child: Icon(
-              Icons.logout_rounded,
-              color: AppTheme.errorRed,
-              size: 32.r,
-            ),
-          ),
-          
-          AppSpacing.verticalSpaceMD,
-          
-          // Title
-          Text(
-            'Sign Out',
-            style: AppTheme.headingLarge.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          
-          AppSpacing.verticalSpaceSM,
-          
-          // Message
-          Text(
-            'Are you sure you want to sign out of your account?',
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          AppSpacing.verticalSpaceLG,
-          
-          // Buttons
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: AppTheme.buttonSecondary,
-                  child: Text('Cancel'),
-                ),
-              ),
-              AppSpacing.horizontalSpaceMD,
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                    controller.signOutGoogle();
-                  },
-                  style: AppTheme.buttonPrimary.copyWith(
-                    backgroundColor: MaterialStateProperty.all(AppTheme.errorRed),
-                  ),
-                  child: Text('Sign Out'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+  String _getEmailBodyPreview(String body) {
+    if (body.isEmpty) return 'No content available';
+    
+    List<String> lines = body.split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList();
+    
+    List<String> meaningfulLines = [];
+    
+    for (String line in lines) {
+      String lowerLine = line.toLowerCase().trim();
+      
+      // Skip common greetings, signatures, and placeholders
+      if (lowerLine.startsWith('hi [') || 
+          lowerLine.startsWith('hello [') || 
+          lowerLine.startsWith('dear [') ||
+          lowerLine.startsWith('hey [') ||
+          lowerLine.startsWith('regards,') ||
+          lowerLine.startsWith('best regards,') ||
+          lowerLine.startsWith('sincerely,') ||
+          lowerLine.startsWith('thanks,') ||
+          lowerLine.startsWith('thank you,') ||
+          lowerLine.startsWith('cheers,') ||
+          lowerLine.startsWith('yours,') ||
+          lowerLine.startsWith('with ') ||
+          line.trim() == '[Your Name]' ||
+          line.trim() == '[Name]' ||
+          line.length < 10) { // Skip very short lines
+        continue;
+      }
+      
+      meaningfulLines.add(line);
+      if (meaningfulLines.length >= 2) break; // Get first 2 meaningful lines
+    }
+    
+    if (meaningfulLines.isEmpty) {
+      // Fallback: take lines that aren't just placeholders
+      meaningfulLines = lines
+          .where((line) => 
+              !line.contains('[Name]') && 
+              !line.contains('[Your Name]') && 
+              line.length > 5)
+          .take(2)
+          .toList();
+    }
+    
+    String preview = meaningfulLines.join(' ');
+    
+    // Replace common placeholders with readable text
+    preview = preview
+        .replaceAll('[Name]', 'recipient')
+        .replaceAll('[Your Name]', 'sender')
+        .replaceAll('[Topic]', 'the topic')
+        .replaceAll('[Project Name]', 'the project')
+        .replaceAll('[Date]', 'the date')
+        .replaceAll('[Time]', 'the time')
+        .replaceAll('[Company]', 'your company')
+        .replaceAll('[Product]', 'the product')
+        .replaceAll('[Service]', 'the service');
+    
+    return preview.isNotEmpty ? preview : 'Professional email template content';
+  }
+
+  // Helper methods
+  IconData _getIconForTemplate(String title) {
+    if (title.contains('Meeting') || title.contains('📝')) return Icons.event_note_rounded;
+    if (title.contains('Project') || title.contains('🎯')) return Icons.track_changes_rounded;
+    if (title.contains('Client') || title.contains('🎉')) return Icons.celebration_rounded;
+    if (title.contains('Follow') || title.contains('📞')) return Icons.call_rounded;
+    if (title.contains('Feature') || title.contains('🔥')) return Icons.new_releases_rounded;
+    if (title.contains('Offer') || title.contains('🎁')) return Icons.local_offer_rounded;
+    if (title.contains('Report') || title.contains('📊')) return Icons.assessment_rounded;
+    if (title.contains('Question') || title.contains('💡')) return Icons.help_outline_rounded;
+    if (title.contains('Kickoff') || title.contains('🚀')) return Icons.rocket_launch_rounded;
+    if (title.contains('Partnership') || title.contains('🤝')) return Icons.handshake_rounded;
+    if (title.contains('Congratulations') || title.contains('🎉')) return Icons.celebration_rounded;
+    if (title.contains('Meeting') || title.contains('📅')) return Icons.schedule_rounded;
+    if (title.contains('Update') || title.contains('🔔')) return Icons.notifications_rounded;
+    if (title.contains('Webinar') || title.contains('📅')) return Icons.video_call_rounded;
+    if (title.contains('Welcome') || title.contains('👋')) return Icons.waving_hand_rounded;
+    return Icons.email_rounded;
+  }
+
+  String _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'personal': return '0xFF8B5CF6';
+      case 'business': return '0xFFB794F6';
+      case 'thank you': return '0xFFF472B6';
+      case 'follow-up': return '0xFF10B981';
+      case 'product updates': return '0xFFF59E0B';
+      case 'promotions': return '0xFFEC4899';
+      case 'reports': return '0xFF3B82F6';
+      case 'inquiry': return '0xFF8B5CF6';
+      case 'project management': return '0xFFB794F6';
+      case 'congratulations': return '0xFFF472B6';
+      case 'meetings': return '0xFF10B981';
+      case 'updates': return '0xFFF59E0B';
+      case 'events': return '0xFFEC4899';
+      case 'welcome': return '0xFF8B5CF6';
+      default: return '0xFF8B5CF6';
+    }
   }
 }

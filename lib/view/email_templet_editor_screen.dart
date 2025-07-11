@@ -90,18 +90,18 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundGray,
+      backgroundColor: AppTheme.backgroundDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Container(
           margin: EdgeInsets.all(6.r),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceWhite,
+            color: AppTheme.textPrimary,
             borderRadius: BorderRadius.circular(8.r),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
+                color: AppTheme.primaryPurple.withOpacity(0.1),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -127,11 +127,11 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
           Container(
             margin: EdgeInsets.all(6.r),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceWhite,
+              color: AppTheme.textPrimary,
               borderRadius: BorderRadius.circular(8.r),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryPurple.withOpacity(0.1),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -159,7 +159,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 📧 COMPACT EMAIL HEADER SECTION
-                  ModernCard(
+                  CosmicCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -168,7 +168,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                           children: [
                             Icon(
                               Icons.email_outlined,
-                              color: AppTheme.primaryBlue,
+                              color: AppTheme.primaryPurple,
                               size: 16.r,
                             ),
                             SizedBox(width: AppSpacing.xs),
@@ -197,7 +197,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                   SizedBox(height: AppSpacing.sm),
                   
                   // 📝 COMPACT EMAIL BODY SECTION
-                  ModernCard(
+                  CosmicCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -206,7 +206,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                           children: [
                             Icon(
                               Icons.edit_note_rounded,
-                              color: AppTheme.secondaryTeal,
+                              color: AppTheme.secondaryLavender,
                               size: 16.r,
                             ),
                             SizedBox(width: AppSpacing.xs),
@@ -223,7 +223,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                               decoration: BoxDecoration(
-                                color: AppTheme.backgroundGray,
+                                color: AppTheme.backgroundDark,
                                 borderRadius: BorderRadius.circular(4.r),
                               ),
                               child: Text(
@@ -243,7 +243,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                           width: double.infinity,
                           constraints: BoxConstraints(minHeight: 200.h),
                           decoration: BoxDecoration(
-                            color: AppTheme.backgroundGray,
+                            color: AppTheme.backgroundDark,
                             borderRadius: BorderRadius.circular(8.r),
                             border: Border.all(
                               color: AppTheme.cardGray,
@@ -279,7 +279,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                   SizedBox(height: AppSpacing.sm),
                   
                   // 🛠️ COMPACT QUICK ACTIONS
-                  ModernCard(
+                  CosmicCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -360,14 +360,14 @@ ${bodyController.text}
             width: double.infinity,
             padding: EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceWhite,
+              color: AppTheme.textPrimary,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.r),
                 topRight: Radius.circular(16.r),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  color: AppTheme.primaryPurple.withOpacity(0.1),
                   blurRadius: 12,
                   offset: const Offset(0, -3),
                 ),
@@ -397,15 +397,14 @@ ${bodyController.text}
                   ),
                   SizedBox(height: AppSpacing.xs),
                   
-                  ModernButton(
+                  CosmicGradientButton(
                     text: 'Send Email',
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color: AppTheme.surfaceWhite,
-                      size: 14.r,
-                    ),
-                    minimumSize: Size(double.infinity, 42.h),
-                    onPressed: _canSendEmail() ? _launchMailClient : null,
+                    icon: Icons.send,
+                    onPressed: _canSendEmail() 
+                        ? () {
+                            _launchMailClient();
+                          }
+                        : () {},
                   ),
                 ],
               ),
@@ -468,12 +467,12 @@ ${bodyController.text}
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.r),
-                    borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+                    borderSide: BorderSide(color: AppTheme.primaryPurple, width: 2),
                   ),
                   hintText: label == "Subject" ? "Enter email subject" : "Enter email address",
                   hintStyle: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
                   filled: true,
-                  fillColor: AppTheme.backgroundGray,
+                  fillColor: AppTheme.backgroundDark,
                 ),
               ),
             ),
@@ -490,7 +489,7 @@ ${bodyController.text}
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 6.w),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundGray,
+          color: AppTheme.backgroundDark,
           borderRadius: BorderRadius.circular(6.r),
           border: Border.all(color: AppTheme.cardGray),
         ),
@@ -530,7 +529,7 @@ ${bodyController.text}
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: AppTheme.surfaceWhite,
+          backgroundColor: AppTheme.textPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
           ),
@@ -557,9 +556,9 @@ ${bodyController.text}
                 maxLines: 1,
               ),
             ),
-            ModernButton(
+            CosmicGradientButton(
               text: 'Clear All',
-              variant: ButtonVariant.secondary,
+              icon: Icons.clear,
               onPressed: () {
                 setState(() {
                   toController.clear();

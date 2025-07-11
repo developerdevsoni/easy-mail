@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "964301047830",
+    "project_id": "ezmail-ce986",
+    "storage_bucket": "ezmail-ce986.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964301047830:android:cb7d665d522a27563f4d37",
+        "android_client_info": {
+          "package_name": "com.sylionixtech.easy_mail"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhfgaY1uxKh8LqRyFup-Zxx2Gn0yJHQik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
