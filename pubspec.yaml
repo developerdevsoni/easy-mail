@@ -47,6 +47,7 @@ dependencies:
    firebase_crashlytics: ^4.3.8
    firebase_core: ^3.3.0
    firebase_auth: ^5.1.4
+   lottie: ^3.1.2
 #  quill_html_editor: ^2.2.8
 #  file_picker: 6.2.1
 

@@ -1,5 +1,5 @@
 import 'package:easy_mail/view/home_screen.dart';
-import 'package:easy_mail/view/intro_screen.dart';
+// import 'package:easy_mail/view/intro_screen.dart'; // Removed onboarding screen
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 // import 'package:easy_mail/view/mailEditor_screen.dart';
@@ -35,10 +35,8 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      // 🚧 DEVELOPMENT BYPASS: Skip authentication and go directly to HomeScreen
-      // TODO: Remove this bypass for production
-      child: IntroScreen(), // 👈 BYPASSING AUTHENTICATION FOR DEVELOPMENT
-      // child: IntroScreen(), // 👈 ORIGINAL CODE - UNCOMMENT FOR PRODUCTION
+      // 🚀 START WITH LOGIN: Users must explicitly login
+      child: GoogleLoginPage(), // 👈 REMOVED AUTO-LOGIN - START WITH LOGIN PAGE
     );
   }
 }

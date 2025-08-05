@@ -12,115 +12,117 @@ class GoogleLoginPage extends StatelessWidget {
     final AuthController controller = Get.put(AuthController());
 
     return Scaffold(
-      backgroundColor: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.surfaceWhite,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              AppTheme.primaryBlue,
-              AppTheme.secondaryTeal,
+              AppTheme.surfaceWhite,
+              AppTheme.backgroundGray.withOpacity(0.2),
             ],
           ),
         ),
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Column(
               children: [
                 // Top section with logo and branding
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo container with light background
+                      // Compact logo
                       Container(
                         width: 80.w,
                         height: 80.h,
                         decoration: BoxDecoration(
-                          color: AppTheme.surfaceWhite,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppTheme.primaryBlue,
+                              AppTheme.secondaryTeal,
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(20.r),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: AppTheme.primaryBlue.withOpacity(0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Background circle
-                            Container(
-                              width: 60.w,
-                              height: 60.h,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    AppTheme.primaryBlue,
-                                    AppTheme.secondaryTeal,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(30.r),
-                              ),
-                            ),
-                            // Email icon
-                            Icon(
-                              Icons.email_outlined,
-                              size: 32.r,
-                              color: AppTheme.surfaceWhite,
-                            ),
-                          ],
+                        child: Icon(
+                          Icons.email_rounded,
+                          size: 36.r,
+                          color: AppTheme.surfaceWhite,
                         ),
                       ),
 
                       SizedBox(height: 24.h),
 
-                      // App name with premium font styling
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppTheme.surfaceWhite,
-                            AppTheme.surfaceWhite.withOpacity(0.9),
-                          ],
-                        ).createShader(bounds),
-                        child: Text(
-                          "EzMail",
-                          style: TextStyle(
-                            fontSize: 36.sp,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.surfaceWhite,
-                            letterSpacing: -1.0,
-                            height: 1.0,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black.withOpacity(0.3),
-                                offset: const Offset(0, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
+                      // App name
+                      Text(
+                        "EzMail",
+                        style: TextStyle(
+                          fontSize: 36.sp,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.textPrimary,
+                          letterSpacing: -1.0,
+                          height: 1.0,
                         ),
                       ),
 
                       SizedBox(height: 8.h),
 
-                      // Tagline with light text
+                      // Tagline
                       Text(
                         "AI-Powered Email Assistant",
                         style: TextStyle(
-                          fontSize: 16.sp,
-                          color: AppTheme.surfaceWhite.withOpacity(0.9),
+                          fontSize: 14.sp,
+                          color: AppTheme.textSecondary,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 0.2,
                         ),
+                      ),
+
+                      SizedBox(height: 32.h),
+
+                      // Compact feature highlights
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildFeatureCard(
+                              Icons.auto_awesome_rounded,
+                              "AI Generated",
+                              "Smart composition",
+                              AppTheme.primaryBlue,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: _buildFeatureCard(
+                              Icons.description_outlined,
+                              "Templates",
+                              "Professional layouts",
+                              AppTheme.secondaryTeal,
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: _buildFeatureCard(
+                              Icons.security_rounded,
+                              "Secure",
+                              "Your data protected",
+                              AppTheme.accentGold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -128,124 +130,123 @@ class GoogleLoginPage extends StatelessWidget {
 
                 // Middle section - User info or welcome message
                 Expanded(
-                  flex: 1,
-                  child: Obx(() {
-                    if (controller.userName.isNotEmpty) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // User avatar with light background
-                          Container(
-                            padding: EdgeInsets.all(3.w),
-                            decoration: BoxDecoration(
-                              color: AppTheme.surfaceWhite,
-                              borderRadius: BorderRadius.circular(50.r),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.15),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 5),
+                  flex: 2,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Obx(() {
+                        if (controller.userName.isNotEmpty) {
+                          return Column(
+                            children: [
+                              // Compact user avatar
+                              Container(
+                                padding: EdgeInsets.all(3.w),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppTheme.primaryBlue,
+                                      AppTheme.secondaryTeal,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(50.r),
                                 ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              radius: 28.r,
-                              backgroundColor: AppTheme.primaryBlue,
-                              backgroundImage:
-                                  controller.photoUrl.value.isNotEmpty
+                                child: CircleAvatar(
+                                  radius: 24.r,
+                                  backgroundColor: AppTheme.surfaceWhite,
+                                  backgroundImage: controller
+                                          .photoUrl.value.isNotEmpty
                                       ? NetworkImage(controller.photoUrl.value)
                                       : null,
-                              child: controller.photoUrl.value.isEmpty
-                                  ? Icon(
-                                      Icons.person_rounded,
-                                      size: 28.r,
-                                      color: AppTheme.surfaceWhite,
-                                    )
-                                  : null,
-                            ),
-                          ),
+                                  child: controller.photoUrl.value.isEmpty
+                                      ? Icon(
+                                          Icons.person_rounded,
+                                          size: 24.r,
+                                          color: AppTheme.primaryBlue,
+                                        )
+                                      : null,
+                                ),
+                              ),
 
-                          SizedBox(height: 16.h),
+                              SizedBox(height: 16.h),
 
-                          // Welcome text with light colors
-                          Text(
-                            "Welcome back,",
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              color: AppTheme.surfaceWhite.withOpacity(0.8),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                              Text(
+                                "Welcome back,",
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  color: AppTheme.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
 
-                          SizedBox(height: 4.h),
+                              SizedBox(height: 4.h),
 
-                          Text(
-                            controller.userName.value.split(' ').first,
-                            style: TextStyle(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.surfaceWhite,
-                            ),
-                          ),
-                        ],
-                      );
-                    }
+                              Text(
+                                controller.userName.value.split(' ').first,
+                                style: TextStyle(
+                                  fontSize: 24.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
 
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Feature highlights with light backgrounds
-                        Row(
+                        return Column(
                           children: [
-                            Expanded(
-                              child: _buildFeatureItem(
-                                Icons.auto_awesome_rounded,
-                                "AI Generated",
-                                "Smart emails",
+                            Text(
+                              "Get Started",
+                              style: TextStyle(
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.textPrimary,
                               ),
                             ),
-                            SizedBox(width: 16.w),
-                            Expanded(
-                              child: _buildFeatureItem(
-                                Icons.temple_hindu_sharp,
-                                "Templates",
-                                "Professional",
+                            SizedBox(height: 8.h),
+                            Text(
+                              "Sign in to access your AI email assistant",
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: AppTheme.textSecondary,
+                                fontWeight: FontWeight.w400,
                               ),
-                            ),
-                            SizedBox(width: 16.w),
-                            Expanded(
-                              child: _buildFeatureItem(
-                                Icons.security_rounded,
-                                "Secure",
-                                "Your data safe",
-                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
-                        ),
-                      ],
-                    );
-                  }),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
 
                 // Bottom section - Login button and footer
                 Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Login button with light background
+                      // Compact login button
                       Obx(() {
                         return Container(
                           width: double.infinity,
-                          height: 56.h,
+                          height: 50.h,
                           decoration: BoxDecoration(
-                            color: AppTheme.surfaceWhite,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppTheme.primaryBlue,
+                                AppTheme.secondaryTeal,
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(16.r),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                                color: AppTheme.primaryBlue.withOpacity(0.2),
+                                blurRadius: 15,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),
@@ -268,7 +269,7 @@ class GoogleLoginPage extends StatelessWidget {
                                           strokeWidth: 2.5,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                            AppTheme.primaryBlue,
+                                            AppTheme.surfaceWhite,
                                           ),
                                         ),
                                       )
@@ -276,17 +277,13 @@ class GoogleLoginPage extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          controller.userName.isNotEmpty
-                                              ? Icon(
-                                                  Icons.arrow_forward_rounded,
-                                                  color: AppTheme.primaryBlue,
-                                                  size: 20.r,
-                                                )
-                                              : Icon(
-                                                  Icons.login_rounded,
-                                                  color: AppTheme.primaryBlue,
-                                                  size: 20.r,
-                                                ),
+                                          Icon(
+                                            controller.userName.isNotEmpty
+                                                ? Icons.arrow_forward_rounded
+                                                : Icons.login_rounded,
+                                            color: AppTheme.surfaceWhite,
+                                            size: 20.r,
+                                          ),
                                           SizedBox(width: 12.w),
                                           Text(
                                             controller.userName.isNotEmpty
@@ -295,7 +292,7 @@ class GoogleLoginPage extends StatelessWidget {
                                             style: TextStyle(
                                               fontSize: 16.sp,
                                               fontWeight: FontWeight.w600,
-                                              color: AppTheme.primaryBlue,
+                                              color: AppTheme.surfaceWhite,
                                               letterSpacing: 0.3,
                                             ),
                                           ),
@@ -309,41 +306,41 @@ class GoogleLoginPage extends StatelessWidget {
 
                       SizedBox(height: 16.h),
 
-                      // Security note with light text
+                      // Compact security note
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.lock_outline_rounded,
-                            color: AppTheme.surfaceWhite.withOpacity(0.7),
-                            size: 16.r,
+                            color: AppTheme.textTertiary,
+                            size: 14.r,
                           ),
-                          SizedBox(width: 8.w),
+                          SizedBox(width: 6.w),
                           Text(
                             "Secure authentication with Google",
                             style: TextStyle(
-                              fontSize: 13.sp,
-                              color: AppTheme.surfaceWhite.withOpacity(0.7),
+                              fontSize: 12.sp,
+                              color: AppTheme.textTertiary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
 
-                      SizedBox(height: 24.h),
+                      SizedBox(height: 20.h),
 
-                      // Terms with light text
+                      // Compact terms
                       Text(
                         "By continuing, you agree to our Terms & Privacy Policy",
                         style: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppTheme.surfaceWhite.withOpacity(0.6),
+                          fontSize: 11.sp,
+                          color: AppTheme.textTertiary,
                           fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
                       ),
 
-                      SizedBox(height: 32.h),
+                      SizedBox(height: 16.h),
                     ],
                   ),
                 ),
@@ -355,40 +352,45 @@ class GoogleLoginPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(IconData icon, String title, String subtitle) {
+  Widget _buildFeatureCard(
+      IconData icon, String title, String subtitle, Color color) {
     return Container(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
         color: AppTheme.surfaceWhite,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: color.withOpacity(0.1),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: color.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         children: [
           Container(
-            width: 40.w,
-            height: 40.h,
+            width: 32.w,
+            height: 32.h,
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10.r),
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
               icon,
-              color: AppTheme.primaryBlue,
-              size: 20.r,
+              color: color,
+              size: 16.r,
             ),
           ),
           SizedBox(height: 8.h),
           Text(
             title,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
             ),
@@ -398,7 +400,7 @@ class GoogleLoginPage extends StatelessWidget {
           Text(
             subtitle,
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: 9.sp,
               color: AppTheme.textTertiary,
               fontWeight: FontWeight.w500,
             ),

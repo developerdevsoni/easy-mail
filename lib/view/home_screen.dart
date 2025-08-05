@@ -720,8 +720,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     const Spacer(),
                                     GestureDetector(
                                       onTap: () {
-                                        FirebaseCrashlytics.instance.crash();
-                                        // Get.to(() => MyTemplatesScreen());
+                                        // FirebaseCrashlytics.instance.crash();
+                                        Get.to(() => MyTemplatesScreen());
                                       },
                                       child: Text(
                                         'View All',

@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@android:color/white" />
+    <!-- Background gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#0B2A4E"
+                android:endColor="#148A8A"
+                android:angle="135" />
+        </shape>
+    </item>
 
-    <!-- You can insert your own image assets here -->
-    <!-- <item>
+    <!-- App logo container -->
+    <item android:gravity="center">
+        <shape android:shape="rectangle">
+            <size
+                android:width="120dp"
+                android:height="120dp" />
+            <gradient
+                android:startColor="#0B2A4E"
+                android:endColor="#148A8A"
+                android:angle="45" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+
+    <!-- Email icon -->
+    <item android:gravity="center">
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/launch_image" />
-    </item> -->
+            android:src="@drawable/ic_email" />
+    </item>
+
+
 </layer-list>
