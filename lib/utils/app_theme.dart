@@ -7,7 +7,8 @@ class AppTheme {
   static const Color secondaryTeal = Color(0xFF148A8A);     // Professional Teal - innovation
   static const Color accentGold = Color(0xFFF59E0B);        // Success Gold - premium
   static const Color surfaceWhite = Color(0xFFFFFFFF);      // Pure White - clean
-  static const Color backgroundGray = Color(0xFFF8FAFC);    // Light Gray - modern background
+  static const Color backgroundGray = Color(0xFFF8FAFC); 
+    static const Color backgroundGrayF6 = Color(0xFFF6F6F6);    // Light Gray - modern background
   static const Color cardGray = Color(0xFFE2E8F0);          // Card borders
   static const Color textPrimary = Color(0xFF1E293B);       // Dark text
   static const Color textSecondary = Color(0xFF64748B);     // Secondary text
