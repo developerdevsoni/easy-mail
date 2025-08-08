@@ -154,6 +154,7 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
                 SizedBox(
                   width: double.infinity,
                   child: ModernButton(
+                    backgroundColor: AppTheme.secondaryTeal,
                     text: 'Got it!',
                     onPressed: () => Navigator.pop(context),
                   ),
@@ -562,6 +563,7 @@ class _AiMailGeneratorScreenState extends State<AiMailGeneratorScreen>
                               ),
                               SizedBox(height: AppSpacing.lg),
                               ModernButton(
+                                backgroundColor: AppTheme.secondaryTeal,
                                 text: 'Open in Email Editor',
                                 icon: Icon(
                                   Icons.edit_rounded,

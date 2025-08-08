@@ -21,10 +21,10 @@ class ModernCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BoxDecoration decoration = glassMorphism 
-        ? AppTheme.glassDecoration 
-        : elevated 
-            ? AppTheme.elevatedCardDecoration 
+    BoxDecoration decoration = glassMorphism
+        ? AppTheme.glassDecoration
+        : elevated
+            ? AppTheme.elevatedCardDecoration
             : AppTheme.cardDecoration;
 
     Widget cardContent = Container(
@@ -61,6 +61,7 @@ class ModernButton extends StatelessWidget {
     this.minimumSize,
     this.icon,
     this.loading = false,
+    required Color backgroundColor,
   }) : super(key: key);
 
   @override
@@ -91,8 +92,8 @@ class ModernButton extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                variant == ButtonVariant.secondary 
-                    ? AppTheme.textPrimary 
+                variant == ButtonVariant.secondary
+                    ? AppTheme.textPrimary
                     : AppTheme.surfaceWhite,
               ),
             ),
@@ -393,13 +394,13 @@ class ModernChip extends StatelessWidget {
         curve: AppAnimations.defaultCurve,
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: selected 
-              ? (selectedColor ?? AppTheme.primaryBlue) 
+          color: selected
+              ? (selectedColor ?? AppTheme.primaryBlue)
               : AppTheme.surfaceWhite,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: selected 
-                ? (selectedColor ?? AppTheme.primaryBlue) 
+            color: selected
+                ? (selectedColor ?? AppTheme.primaryBlue)
                 : AppTheme.cardGray,
             width: 1,
           ),
@@ -407,9 +408,7 @@ class ModernChip extends StatelessWidget {
         child: Text(
           label,
           style: AppTheme.bodySmall.copyWith(
-            color: selected 
-                ? AppTheme.surfaceWhite 
-                : AppTheme.textSecondary,
+            color: selected ? AppTheme.surfaceWhite : AppTheme.textSecondary,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
           overflow: TextOverflow.ellipsis,
@@ -460,4 +459,4 @@ class PremiumBadge extends StatelessWidget {
       ),
     );
   }
-} 
+}

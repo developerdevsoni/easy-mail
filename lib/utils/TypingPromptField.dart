@@ -490,6 +490,7 @@ class _TypingPromptFieldState extends State<TypingPromptField> {
                     children: [
                       Expanded(
                         child: ModernButton(
+                          backgroundColor: AppTheme.secondaryTeal,
                           text: 'Regenerate',
                           variant: ButtonVariant.secondary,
                           icon: Icon(
@@ -507,6 +508,7 @@ class _TypingPromptFieldState extends State<TypingPromptField> {
                       Expanded(
                         flex: 2,
                         child: ModernButton(
+                          backgroundColor: AppTheme.secondaryTeal,
                           text: 'Use This Email',
                           variant: ButtonVariant.primary,
                           icon: Icon(

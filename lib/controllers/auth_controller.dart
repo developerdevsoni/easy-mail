@@ -20,8 +20,8 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Removed automatic login check - users must explicitly login
-    print("🚀 AuthController initialized - No automatic login");
+    // Initialize the controller but don't auto-check login
+    // Login check will be called manually by AuthWrapper
   }
 
   // Check if user is already logged in (called manually when needed)
@@ -30,16 +30,17 @@ class AuthController extends GetxController {
     final email = prefs.getString('userEmail') ?? '';
     final name = prefs.getString('userName') ?? '';
     final photo = prefs.getString('photoUrl') ?? '';
+    final token = prefs.getString('accessToken') ?? '';
 
-    if (email.isNotEmpty && name.isNotEmpty) {
+    if (email.isNotEmpty && name.isNotEmpty && token.isNotEmpty) {
       userEmail.value = email;
       userName.value = name;
       photoUrl.value = photo;
       isLoggedIn.value = true;
-      print("✅ User found in local storage: $name ($email)");
     } else {
-      print("❌ No user data found in local storage");
       isLoggedIn.value = false;
+      // Clear any incomplete data
+      await clearUserData();
     }
   }
 
@@ -106,8 +107,15 @@ class AuthController extends GetxController {
       );
 
       if (result['success']) {
-        // Save user data locally
+        // Save user data and token locally
         await _saveUserDataLocally(result['data']);
+
+        // Save access token if available
+        if (result['data']['token'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('accessToken', result['data']['token']);
+        }
+
         Get.snackbar(
           "Login Successful",
           "Welcome back!",
@@ -139,7 +147,7 @@ class AuthController extends GetxController {
   Future<void> loginWithGoogle() async {
     try {
       isLoading.value = true;
-
+      final prefs = await SharedPreferences.getInstance();
       // Trigger the Google Sign-In flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -165,62 +173,81 @@ class AuthController extends GetxController {
       final User? user = userCredential.user;
 
       if (user != null) {
-        // Save user data locally
-        userEmail.value = user.email ?? '';
-        userName.value = user.displayName ?? '';
-        photoUrl.value = user.photoURL ?? '';
-        isLoggedIn.value = true;
-        await saveUserData();
-
-        // Try to save user to backend
+        // Try to save user to backend first
         try {
-          final res = await ApiRepository.saveGoogleUser(
-            email: userEmail.value,
-            name: userName.value,
-            accessToken: googleAuth.accessToken ?? '',
-            serverAuthCode: googleUser.serverAuthCode ?? '',
+          final res = await ApiRepository.storeGoogleUser(
+            googleId: user.uid,
+            email: user.email ?? '',
+            name: user.displayName ?? '',
             photoUrl: user.photoURL,
-            id: user.uid,
           );
+          print("token------->: ${res['data']['data']['token']}");
+          await prefs.setString('accessToken', res['data']['data']['token']);
+          if (res['success'] == true) {
+            // Save user data from backend response
+            if (res['data'] != null && res['data']['user'] != null) {
+              final userData = res['data']['user'];
+              userEmail.value = userData['email'] ?? user.email ?? '';
+              userName.value = userData['name'] ?? user.displayName ?? '';
+              photoUrl.value = userData['photoUrl'] ?? user.photoURL ?? '';
+            } else {
+              // Fallback to Firebase user data
+              userEmail.value = user.email ?? '';
+              userName.value = user.displayName ?? '';
+              photoUrl.value = user.photoURL ?? '';
+            }
 
-          if (res.success == true) {
+            isLoggedIn.value = true;
+            await saveUserData();
+
             Get.snackbar(
               "Login Success",
               "Welcome ${userName.value}",
               backgroundColor: Colors.green,
               colorText: Colors.white,
             );
+
+            // Navigate to home screen only on successful login
+            Get.offAll(() => HomeScreen());
           } else {
+            // Backend sync failed - don't save user data locally
+            await _handleFailedLogin();
+
             Get.snackbar(
-              "Login Success",
-              "Welcome ${userName.value} (Offline mode)",
-              backgroundColor: Colors.orange,
+              "Login Failed",
+              "Server authentication failed. Please try again.",
+              backgroundColor: Colors.red,
               colorText: Colors.white,
             );
           }
         } catch (e) {
-          print("Backend sync failed: $e");
+          // Backend sync failed - don't save user data locally
+          await _handleFailedLogin();
+
           Get.snackbar(
-            "Login Success",
-            "Welcome ${userName.value} (Offline mode)",
-            backgroundColor: Colors.orange,
+            "Login Failed",
+            "Server connection failed. Please check your internet connection and try again.",
+            backgroundColor: Colors.red,
             colorText: Colors.white,
           );
         }
-
-        Get.offAll(() => HomeScreen());
       } else {
+        await _handleFailedLogin();
+
         Get.snackbar(
           "Login Failed",
-          "Could not retrieve user data",
+          "Could not retrieve user data from Google",
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
+      // Handle Firebase authentication errors
+      await _handleFailedLogin();
+
       Get.snackbar(
         "Login Error",
-        e.toString(),
+        "Authentication failed: ${e.toString()}",
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -289,7 +316,8 @@ class AuthController extends GetxController {
         colorText: Colors.white,
       );
 
-      Get.offAll(() => GoogleLoginPage());
+      // Navigate back to auth wrapper for proper routing
+      Get.offAll(() => const GoogleLoginPage());
     } catch (e) {
       Get.snackbar(
         "Logout Error",
@@ -308,7 +336,6 @@ class AuthController extends GetxController {
       final result = await ApiRepository.getProfile();
       return result['success'] ? result['data'] : null;
     } catch (e) {
-      print("Error getting profile: $e");
       return null;
     }
   }
@@ -357,6 +384,21 @@ class AuthController extends GetxController {
     await saveUserData();
   }
 
+  // Helper method to handle failed login cleanup
+  Future<void> _handleFailedLogin() async {
+    // Ensure Firebase and Google are signed out
+    try {
+      await _auth.signOut();
+      await _googleSignIn.signOut();
+    } catch (e) {}
+
+    // Clear any partial user data
+    userEmail.value = '';
+    userName.value = '';
+    photoUrl.value = '';
+    isLoggedIn.value = false;
+  }
+
   Future<void> saveUserData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userEmail', userEmail.value);
@@ -366,7 +408,12 @@ class AuthController extends GetxController {
 
   Future<void> clearUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    // Clear specific keys instead of all data
+    await prefs.remove('userEmail');
+    await prefs.remove('userName');
+    await prefs.remove('photoUrl');
+    await prefs.remove('accessToken');
+
     userEmail.value = '';
     userName.value = '';
     photoUrl.value = '';

@@ -1,9 +1,13 @@
-import 'repositories/main_repository.dart';
-import '../model/saveGoogleUser_modal.dart';
+import 'auth_repository.dart';
+import 'email_repository.dart';
+import 'global_template_repository.dart';
+import 'personal_template_repository.dart';
+import 'template_management_repository.dart';
+import '../../model/saveGoogleUser_modal.dart';
 
-/// Legacy API Repository - now delegates to MainRepository
-/// This maintains backward compatibility while using the new organized structure
-class ApiRepository {
+/// Main repository that coordinates all service repositories
+/// Provides a unified interface for all API operations
+class MainRepository {
   // ==================== AUTHENTICATION APIs ====================
 
   static Future<Map<String, dynamic>> register({
@@ -11,7 +15,7 @@ class ApiRepository {
     required String password,
     required String name,
   }) async {
-    return MainRepository.register(
+    return AuthRepository.register(
       email: email,
       password: password,
       name: name,
@@ -22,7 +26,7 @@ class ApiRepository {
     required String email,
     required String password,
   }) async {
-    return MainRepository.login(
+    return AuthRepository.login(
       email: email,
       password: password,
     );
@@ -31,7 +35,7 @@ class ApiRepository {
   static Future<Map<String, dynamic>> loginWithGoogleToken({
     required String idToken,
   }) async {
-    return MainRepository.loginWithGoogleToken(idToken: idToken);
+    return AuthRepository.loginWithGoogleToken(idToken: idToken);
   }
 
   static Future<Map<String, dynamic>> storeGoogleUser({
@@ -40,7 +44,7 @@ class ApiRepository {
     required String name,
     String? photoUrl,
   }) async {
-    return MainRepository.storeGoogleUser(
+    return AuthRepository.storeGoogleUser(
       googleId: googleId,
       email: email,
       name: name,
@@ -49,17 +53,17 @@ class ApiRepository {
   }
 
   static Future<Map<String, dynamic>> logout() async {
-    return MainRepository.logout();
+    return AuthRepository.logout();
   }
 
   static Future<Map<String, dynamic>> getProfile() async {
-    return MainRepository.getProfile();
+    return AuthRepository.getProfile();
   }
 
   static Future<Map<String, dynamic>> updateProfile({
     required Map<String, dynamic> profileData,
   }) async {
-    return MainRepository.updateProfile(profileData: profileData);
+    return AuthRepository.updateProfile(profileData: profileData);
   }
 
   static Future<saveGoogleUser_modal> saveGoogleUser({
@@ -70,7 +74,7 @@ class ApiRepository {
     String? photoUrl,
     String? id,
   }) async {
-    return MainRepository.saveGoogleUser(
+    return AuthRepository.saveGoogleUser(
       email: email,
       name: name,
       accessToken: accessToken,
@@ -81,11 +85,11 @@ class ApiRepository {
   }
 
   static Future<Map<String, dynamic>> getUserByEmail(String email) async {
-    return MainRepository.getUserByEmail(email);
+    return AuthRepository.getUserByEmail(email);
   }
 
   static Future<Map<String, dynamic>> getPrivacyPolicy() async {
-    return MainRepository.getPrivacyPolicy();
+    return AuthRepository.getPrivacyPolicy();
   }
 
   // ==================== EMAIL APIs ====================
@@ -95,7 +99,7 @@ class ApiRepository {
     required String subject,
     required String body,
   }) async {
-    return MainRepository.sendEmail(
+    return EmailRepository.sendEmail(
       to: to,
       subject: subject,
       body: body,
@@ -107,7 +111,7 @@ class ApiRepository {
     required String templateId,
     required Map<String, dynamic> variables,
   }) async {
-    return MainRepository.sendEmailWithTemplate(
+    return EmailRepository.sendEmailWithTemplate(
       to: to,
       templateId: templateId,
       variables: variables,
@@ -115,70 +119,72 @@ class ApiRepository {
   }
 
   static Future<Map<String, dynamic>> getMailHistory() async {
-    return MainRepository.getMailHistory();
+    return EmailRepository.getMailHistory();
   }
 
   static Future<Map<String, dynamic>> getMailStats() async {
-    return MainRepository.getMailStats();
+    return EmailRepository.getMailStats();
   }
 
   // ==================== GLOBAL TEMPLATES APIs ====================
 
   static Future<Map<String, dynamic>> getGlobalTemplates() async {
-    return MainRepository.getGlobalTemplates();
+    return GlobalTemplateRepository.getGlobalTemplates();
   }
 
   static Future<Map<String, dynamic>> getPopularTemplates() async {
-    return MainRepository.getPopularTemplates();
+    return GlobalTemplateRepository.getPopularTemplates();
   }
 
   static Future<Map<String, dynamic>> getTemplatesByCategory(
       String category) async {
-    return MainRepository.getTemplatesByCategory(category);
+    return GlobalTemplateRepository.getTemplatesByCategory(category);
   }
 
   static Future<Map<String, dynamic>> getGlobalTemplateById(
       String templateId) async {
-    return MainRepository.getGlobalTemplateById(templateId);
+    return GlobalTemplateRepository.getGlobalTemplateById(templateId);
   }
 
   static Future<Map<String, dynamic>> createGlobalTemplate({
     required Map<String, dynamic> templateData,
   }) async {
-    return MainRepository.createGlobalTemplate(templateData: templateData);
+    return GlobalTemplateRepository.createGlobalTemplate(
+        templateData: templateData);
   }
 
   static Future<Map<String, dynamic>> incrementUsageCount(
       String templateId) async {
-    return MainRepository.incrementUsageCount(templateId);
+    return GlobalTemplateRepository.incrementUsageCount(templateId);
   }
 
   // ==================== PERSONAL TEMPLATES APIs ====================
 
   static Future<Map<String, dynamic>> getPersonalTemplates() async {
-    return MainRepository.getPersonalTemplates();
+    return PersonalTemplateRepository.getPersonalTemplates();
   }
 
   static Future<Map<String, dynamic>> createPersonalTemplate({
     required Map<String, dynamic> templateData,
   }) async {
-    return MainRepository.createPersonalTemplate(templateData: templateData);
+    return PersonalTemplateRepository.createPersonalTemplate(
+        templateData: templateData);
   }
 
   static Future<Map<String, dynamic>> getFavoriteTemplates() async {
-    return MainRepository.getFavoriteTemplates();
+    return PersonalTemplateRepository.getFavoriteTemplates();
   }
 
   static Future<Map<String, dynamic>> getPersonalTemplateById(
       String templateId) async {
-    return MainRepository.getPersonalTemplateById(templateId);
+    return PersonalTemplateRepository.getPersonalTemplateById(templateId);
   }
 
   static Future<Map<String, dynamic>> updatePersonalTemplate({
     required String templateId,
     required Map<String, dynamic> templateData,
   }) async {
-    return MainRepository.updatePersonalTemplate(
+    return PersonalTemplateRepository.updatePersonalTemplate(
       templateId: templateId,
       templateData: templateData,
     );
@@ -186,36 +192,36 @@ class ApiRepository {
 
   static Future<Map<String, dynamic>> deletePersonalTemplate(
       String templateId) async {
-    return MainRepository.deletePersonalTemplate(templateId);
+    return PersonalTemplateRepository.deletePersonalTemplate(templateId);
   }
 
   static Future<Map<String, dynamic>> toggleFavorite(String templateId) async {
-    return MainRepository.toggleFavorite(templateId);
+    return PersonalTemplateRepository.toggleFavorite(templateId);
   }
 
   // ==================== TEMPLATE MANAGEMENT APIs ====================
 
   static Future<Map<String, dynamic>> getTemplates() async {
-    return MainRepository.getTemplates();
+    return TemplateManagementRepository.getTemplates();
   }
 
   static Future<Map<String, dynamic>> addTemplate({
     required Map<String, dynamic> templateData,
   }) async {
-    return MainRepository.addTemplate(templateData: templateData);
+    return TemplateManagementRepository.addTemplate(templateData: templateData);
   }
 
   static Future<Map<String, dynamic>> updateTemplate({
     required String id,
     required Map<String, dynamic> templateData,
   }) async {
-    return MainRepository.updateTemplate(
+    return TemplateManagementRepository.updateTemplate(
       id: id,
       templateData: templateData,
     );
   }
 
   static Future<Map<String, dynamic>> deleteTemplate(String id) async {
-    return MainRepository.deleteTemplate(id);
+    return TemplateManagementRepository.deleteTemplate(id);
   }
 }

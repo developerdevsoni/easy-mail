@@ -1,11 +1,10 @@
 import 'package:easy_mail/controllers/auth_controller.dart';
+import 'package:easy_mail/controllers/template_controller.dart';
 import 'package:easy_mail/utils/app_theme.dart';
-import 'package:easy_mail/widgets/modern_ui_components.dart';
 import 'package:easy_mail/view/email_templet_editor_screen.dart';
 import 'package:easy_mail/view/ai_mail_generator_screen.dart';
 import 'package:easy_mail/view/discoverTemplete_screen.dart';
 import 'package:easy_mail/view/my_templates_screen.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -17,59 +16,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final AuthController controller = Get.put(AuthController());
+  final TemplateController templateController = Get.put(TemplateController());
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   late ScrollController _scrollController;
 
   bool _showFab = false;
-
-  final List<Map<String, String>> myTemplates = [
-    {
-      'title': '📝 My Meeting Notes',
-      'body':
-          'Hi [Name],\n\nHere are the key points from our meeting today:\n\n• [Point 1]\n• [Point 2]\n• [Point 3]\n\nNext steps: [Action Items]',
-      'regards': 'Best regards, [Your Name]',
-      'category': 'Personal',
-      'isCustom': 'true',
-      'createdDate': '2024-01-15'
-    },
-    {
-      'title': '🎯 Project Update Template',
-      'body':
-          'Hello Team,\n\nProject Status Update:\n\n✅ Completed:\n• [Task 1]\n• [Task 2]\n\n🔄 In Progress:\n• [Task 3]\n\n📅 Upcoming:\n• [Task 4]',
-      'regards': 'Thanks, [Your Name]',
-      'category': 'Business',
-      'isCustom': 'true',
-      'createdDate': '2024-01-12'
-    },
-    {
-      'title': '🎉 Client Appreciation',
-      'body':
-          'Dear [Client Name],\n\nI wanted to personally thank you for choosing our services. Your trust and collaboration have been instrumental in achieving these fantastic results.\n\nLooking forward to continuing our partnership!',
-      'regards': 'With gratitude, [Your Name]',
-      'category': 'Thank You',
-      'isCustom': 'true',
-      'createdDate': '2024-01-10'
-    },
-    {
-      'title': '📞 Follow-up Call Summary',
-      'body':
-          'Hi [Name],\n\nThank you for the call today. Here\'s a summary of what we discussed:\n\n🎯 Key Points:\n• [Point 1]\n• [Point 2]\n\n📋 Action Items:\n• [Action 1] - Due: [Date]\n• [Action 2] - Due: [Date]',
-      'regards': 'Talk soon, [Your Name]',
-      'category': 'Follow-up',
-      'isCustom': 'true',
-      'createdDate': '2024-01-08'
-    },
-    {
-      'title': '💼 Weekly Team Check-in',
-      'body':
-          'Hello Team,\n\nTime for our weekly check-in! Please share:\n\n1. What you accomplished this week\n2. Current challenges\n3. Goals for next week\n\nLet\'s keep the momentum going!',
-      'regards': 'Cheers, [Your Name]',
-      'category': 'Business',
-      'isCustom': 'true',
-      'createdDate': '2024-01-05'
-    },
-  ];
+  bool _isRefreshing = false;
 
   final List<Map<String, String>> globalTemplates = [
     // Business Templates
@@ -448,6 +401,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     });
+
+    // Load initial data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
+  }
+
+  Future<void> _loadInitialData() async {
+    await templateController.getPersonalTemplates();
+  }
+
+  Future<void> _onRefresh() async {
+    if (_isRefreshing) return;
+
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    try {
+      // Refresh personal templates and other data
+      await Future.wait([
+        templateController.getPersonalTemplates(),
+        // Add other refresh operations here if needed
+        // controller.refreshUserData(), // example
+      ]);
+    } catch (e) {
+      print('Error during refresh: $e');
+    } finally {
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
   }
 
   @override
@@ -558,8 +543,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
 
                     // Action Buttons
+                    if (_isRefreshing)
+                      Container(
+                        padding: EdgeInsets.all(8.r),
+                        margin: EdgeInsets.only(right: AppSpacing.xs),
+                        child: SizedBox(
+                          width: 16.w,
+                          height: 16.h,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ),
+                      ),
                     _buildActionButton(Icons.notifications_none_rounded,
                         AppTheme.textSecondary, () {}),
+                    SizedBox(width: AppSpacing.xs),
+                    _buildActionButton(
+                        Icons.refresh_rounded,
+                        _isRefreshing
+                            ? AppTheme.textTertiary
+                            : AppTheme.primaryBlue,
+                        _isRefreshing ? () {} : _onRefresh),
                     SizedBox(width: AppSpacing.xs),
                     _buildActionButton(Icons.logout_rounded, AppTheme.errorRed,
                         () => _showLogoutDialog()),
@@ -569,335 +574,387 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
               // Scrollable Content
               Expanded(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      // AI Generator Hero Card
-                      TweenAnimationBuilder(
-                        duration: const Duration(milliseconds: 800),
-                        tween: Tween<double>(begin: 0, end: 1),
-                        curve: Curves.easeOutBack,
-                        builder: (context, double value, child) {
-                          final clampedValue = value.clamp(0.0, 1.0);
-                          return Transform.translate(
-                            offset: Offset(0, 30 * (1 - clampedValue)),
-                            child: Opacity(
-                              opacity: clampedValue,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.lg),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Get.to(() => const AiMailGeneratorScreen());
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeInOut,
-                                    padding: EdgeInsets.all(AppSpacing.md),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          AppTheme.primaryBlue,
-                                          AppTheme.secondaryTeal,
+                child: RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  color: AppTheme.primaryBlue,
+                  backgroundColor: AppTheme.surfaceWhite,
+                  strokeWidth: 2.5,
+                  displacement: 40.0,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    child: Column(
+                      children: [
+                        // AI Generator Hero Card
+                        TweenAnimationBuilder(
+                          duration: const Duration(milliseconds: 800),
+                          tween: Tween<double>(begin: 0, end: 1),
+                          curve: Curves.easeOutBack,
+                          builder: (context, double value, child) {
+                            final clampedValue = value.clamp(0.0, 1.0);
+                            return Transform.translate(
+                              offset: Offset(0, 30 * (1 - clampedValue)),
+                              child: Opacity(
+                                opacity: clampedValue,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.lg),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Get.to(
+                                          () => const AiMailGeneratorScreen());
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      curve: Curves.easeInOut,
+                                      padding: EdgeInsets.all(AppSpacing.md),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            AppTheme.primaryBlue,
+                                            AppTheme.secondaryTeal,
+                                          ],
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(18.r),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppTheme.primaryBlue
+                                                .withOpacity(0.3),
+                                            blurRadius: 20,
+                                            offset: const Offset(0, 10),
+                                          ),
+                                          BoxShadow(
+                                            color: AppTheme.textTertiary
+                                                .withOpacity(0.1),
+                                            blurRadius: 30,
+                                            offset: const Offset(0, 20),
+                                          ),
                                         ],
                                       ),
-                                      borderRadius: BorderRadius.circular(18.r),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppTheme.primaryBlue
-                                              .withOpacity(0.3),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 10),
-                                        ),
-                                        BoxShadow(
-                                          color: AppTheme.textTertiary
-                                              .withOpacity(0.1),
-                                          blurRadius: 30,
-                                          offset: const Offset(0, 20),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        AnimatedContainer(
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          padding: EdgeInsets.all(10.r),
-                                          decoration: BoxDecoration(
-                                            color: AppTheme.surfaceWhite
-                                                .withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(12.r),
+                                      child: Row(
+                                        children: [
+                                          AnimatedContainer(
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            padding: EdgeInsets.all(10.r),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.surfaceWhite
+                                                  .withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(12.r),
+                                            ),
+                                            child: Icon(
+                                              Icons.auto_awesome_rounded,
+                                              color: AppTheme.surfaceWhite,
+                                              size: 28.r,
+                                            ),
                                           ),
-                                          child: Icon(
-                                            Icons.auto_awesome_rounded,
-                                            color: AppTheme.surfaceWhite,
-                                            size: 28.r,
-                                          ),
-                                        ),
-                                        SizedBox(width: AppSpacing.md),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                '✨ Create with AI',
-                                                style:
-                                                    AppTheme.heading2.copyWith(
-                                                  color: AppTheme.surfaceWhite,
-                                                  fontWeight: FontWeight.w800,
-                                                  fontSize: 16.sp,
+                                          SizedBox(width: AppSpacing.md),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '✨ Create with AI',
+                                                  style: AppTheme.heading2
+                                                      .copyWith(
+                                                    color:
+                                                        AppTheme.surfaceWhite,
+                                                    fontWeight: FontWeight.w800,
+                                                    fontSize: 16.sp,
+                                                  ),
                                                 ),
-                                              ),
-                                              SizedBox(height: 4.h),
-                                              Text(
-                                                'Generate professional emails in seconds',
-                                                style: AppTheme.bodyMedium
-                                                    .copyWith(
-                                                  color: AppTheme.surfaceWhite
-                                                      .withOpacity(0.9),
-                                                  fontSize: 12.sp,
+                                                SizedBox(height: 4.h),
+                                                Text(
+                                                  'Generate professional emails in seconds',
+                                                  style: AppTheme.bodyMedium
+                                                      .copyWith(
+                                                    color: AppTheme.surfaceWhite
+                                                        .withOpacity(0.9),
+                                                    fontSize: 12.sp,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        AnimatedContainer(
-                                          duration:
-                                              const Duration(milliseconds: 300),
-                                          padding: EdgeInsets.all(6.r),
-                                          decoration: BoxDecoration(
-                                            color: AppTheme.surfaceWhite
-                                                .withOpacity(0.2),
-                                            borderRadius:
-                                                BorderRadius.circular(8.r),
+                                          AnimatedContainer(
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            padding: EdgeInsets.all(6.r),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.surfaceWhite
+                                                  .withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                            ),
+                                            child: Icon(
+                                              Icons.arrow_forward_rounded,
+                                              color: AppTheme.surfaceWhite,
+                                              size: 16.r,
+                                            ),
                                           ),
-                                          child: Icon(
-                                            Icons.arrow_forward_rounded,
-                                            color: AppTheme.surfaceWhite,
-                                            size: 16.r,
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
 
-                      SizedBox(height: AppSpacing.xl),
+                        SizedBox(height: AppSpacing.xl),
 
-                      // My Templates Section
-                      TweenAnimationBuilder(
-                        duration: const Duration(milliseconds: 600),
-                        tween: Tween<double>(begin: 0, end: 1),
-                        curve: Curves.easeOutBack,
-                        builder: (context, double value, child) {
-                          final clampedValue = value.clamp(0.0, 1.0);
-                          return Transform.translate(
-                            offset: Offset(-20 * (1 - clampedValue), 0),
-                            child: Opacity(
-                              opacity: clampedValue,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.lg),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      /*'⭐ */ 'My Templates',
-                                      style: AppTheme.heading3.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    GestureDetector(
-                                      onTap: () {
-                                        // FirebaseCrashlytics.instance.crash();
-                                        Get.to(() => MyTemplatesScreen());
-                                      },
-                                      child: Text(
-                                        'View All',
-                                        style: AppTheme.bodySmall.copyWith(
-                                          color: AppTheme.primaryBlue,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      SizedBox(height: AppSpacing.sm),
-
-                      // My Templates Horizontal Scroll
-                      Container(
-                        height: 120.h,
-                        child: myTemplates.isNotEmpty
-                            ? ListView.builder(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.lg),
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: myTemplates.length,
-                                itemBuilder: (context, index) {
-                                  if (index >= myTemplates.length)
-                                    return const SizedBox.shrink();
-                                  final template = myTemplates[index];
-                                  return AnimatedContainer(
-                                    duration: Duration(
-                                        milliseconds: 300 + (index * 100)),
-                                    curve: Curves.easeOutBack,
-                                    width: 220.w,
-                                    margin: EdgeInsets.only(
-                                      right: index == myTemplates.length - 1
-                                          ? 0
-                                          : AppSpacing.sm,
-                                    ),
-                                    child:
-                                        _buildMyTemplateCard(template, index),
-                                  );
-                                },
-                              )
-                            : Center(
-                                child: Text(
-                                  'No custom templates yet',
-                                  style: AppTheme.bodySmall.copyWith(
-                                    color: AppTheme.textTertiary,
-                                  ),
-                                ),
-                              ),
-                      ),
-                      SizedBox(height: AppSpacing.xl),
-
-                      // Templates Section
-                      TweenAnimationBuilder(
-                        duration: const Duration(milliseconds: 700),
-                        tween: Tween<double>(begin: 0, end: 1),
-                        curve: Curves.easeOutBack,
-                        builder: (context, double value, child) {
-                          final clampedValue = value.clamp(0.0, 1.0);
-                          return Transform.translate(
-                            offset: Offset(-20 * (1 - clampedValue), 0),
-                            child: Opacity(
-                              opacity: clampedValue,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.lg),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      /*'📧*/ ' Email Templates',
-                                      style: AppTheme.heading3.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Get.to(() => DiscoverTemplatesPage());
-                                      },
-                                      child: Text(
-                                        'View All',
-                                        style: AppTheme.bodySmall.copyWith(
-                                          color: AppTheme.primaryBlue,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      SizedBox(height: AppSpacing.sm),
-
-                      // Templates Grid
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                        child: _getFilteredTemplates().isNotEmpty
-                            ? GridView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  mainAxisSpacing: AppSpacing.md,
-                                  crossAxisSpacing: AppSpacing.md,
-                                  childAspectRatio: 1.0,
-                                ),
-                                itemCount: _getFilteredTemplates().length,
-                                itemBuilder: (context, index) {
-                                  final filteredTemplates =
-                                      _getFilteredTemplates();
-                                  if (index >= filteredTemplates.length)
-                                    return const SizedBox.shrink();
-                                  final template = filteredTemplates[index];
-                                  return AnimatedContainer(
-                                    duration: Duration(
-                                        milliseconds: 300 + (index * 50)),
-                                    curve: Curves.easeOutBack,
-                                    child: _buildTemplateCard(
-                                      template['title'] ?? '',
-                                      template['body'] ?? '',
-                                      index,
-                                      () {
-                                        Get.to(() => EmailTemplateEditorScreen(
-                                              selectedTemplate: template,
-                                            ));
-                                      },
-                                    ),
-                                  );
-                                },
-                              )
-                            : Container(
-                                height: 200.h,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                        // My Templates Section
+                        TweenAnimationBuilder(
+                          duration: const Duration(milliseconds: 600),
+                          tween: Tween<double>(begin: 0, end: 1),
+                          curve: Curves.easeOutBack,
+                          builder: (context, double value, child) {
+                            final clampedValue = value.clamp(0.0, 1.0);
+                            return Transform.translate(
+                              offset: Offset(-20 * (1 - clampedValue), 0),
+                              child: Opacity(
+                                opacity: clampedValue,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.lg),
+                                  child: Row(
                                     children: [
-                                      Icon(
-                                        Icons.inbox_outlined,
-                                        size: 48.r,
-                                        color: AppTheme.textTertiary,
-                                      ),
-                                      SizedBox(height: AppSpacing.sm),
                                       Text(
-                                        'No templates found',
-                                        style: AppTheme.bodyMedium.copyWith(
-                                          color: AppTheme.textTertiary,
+                                        /*'⭐ */ 'My Templates',
+                                        style: AppTheme.heading3.copyWith(
+                                          fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      SizedBox(height: AppSpacing.xs),
-                                      Text(
-                                        'Try selecting a different category',
-                                        style: AppTheme.caption.copyWith(
-                                          color: AppTheme.textTertiary,
+                                      const Spacer(),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // FirebaseCrashlytics.instance.crash();
+                                          Get.to(() => MyTemplatesScreen());
+                                        },
+                                        child: Text(
+                                          'View All',
+                                          style: AppTheme.bodySmall.copyWith(
+                                            color: AppTheme.primaryBlue,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                      ),
+                            );
+                          },
+                        ),
 
-                      SizedBox(height: AppSpacing.lg),
-                    ],
+                        SizedBox(height: AppSpacing.sm),
+
+                        // My Templates Horizontal Scroll
+                        Container(
+                          height: 120.h,
+                          child: Obx(() {
+                            if (templateController.isLoading.value &&
+                                templateController.personalTemplates.isEmpty) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 20.w,
+                                      height: 20.h,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppTheme.primaryBlue,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Text(
+                                      'Loading templates...',
+                                      style: AppTheme.caption.copyWith(
+                                        color: AppTheme.textTertiary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return templateController
+                                    .personalTemplates.isNotEmpty
+                                ? ListView.builder(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.lg),
+                                    scrollDirection: Axis.horizontal,
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: templateController
+                                        .personalTemplates.length,
+                                    itemBuilder: (context, index) {
+                                      if (index >=
+                                          templateController
+                                              .personalTemplates.length)
+                                        return const SizedBox.shrink();
+                                      final template = templateController
+                                          .personalTemplates[index];
+                                      return AnimatedContainer(
+                                        duration: Duration(
+                                            milliseconds: 300 + (index * 100)),
+                                        curve: Curves.easeOutBack,
+                                        width: 220.w,
+                                        margin: EdgeInsets.only(
+                                          right: index ==
+                                                  templateController
+                                                          .personalTemplates
+                                                          .length -
+                                                      1
+                                              ? 0
+                                              : AppSpacing.sm,
+                                        ),
+                                        child: _buildMyTemplateCard(
+                                            template, index),
+                                      );
+                                    },
+                                  )
+                                : Center(
+                                    child: Text(
+                                      'No personal templates yet',
+                                      style: AppTheme.bodySmall.copyWith(
+                                        color: AppTheme.textTertiary,
+                                      ),
+                                    ),
+                                  );
+                          }),
+                        ),
+                        SizedBox(height: AppSpacing.xl),
+
+                        // Templates Section
+                        TweenAnimationBuilder(
+                          duration: const Duration(milliseconds: 700),
+                          tween: Tween<double>(begin: 0, end: 1),
+                          curve: Curves.easeOutBack,
+                          builder: (context, double value, child) {
+                            final clampedValue = value.clamp(0.0, 1.0);
+                            return Transform.translate(
+                              offset: Offset(-20 * (1 - clampedValue), 0),
+                              child: Opacity(
+                                opacity: clampedValue,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.lg),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        /*'📧*/ ' Email Templates',
+                                        style: AppTheme.heading3.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Get.to(() => DiscoverTemplatesPage());
+                                        },
+                                        child: Text(
+                                          'View All',
+                                          style: AppTheme.bodySmall.copyWith(
+                                            color: AppTheme.primaryBlue,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        SizedBox(height: AppSpacing.sm),
+
+                        // Templates Grid
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                          child: _getFilteredTemplates().isNotEmpty
+                              ? GridView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: AppSpacing.md,
+                                    crossAxisSpacing: AppSpacing.md,
+                                    childAspectRatio: 1.0,
+                                  ),
+                                  itemCount: _getFilteredTemplates().length,
+                                  itemBuilder: (context, index) {
+                                    final filteredTemplates =
+                                        _getFilteredTemplates();
+                                    if (index >= filteredTemplates.length)
+                                      return const SizedBox.shrink();
+                                    final template = filteredTemplates[index];
+                                    return AnimatedContainer(
+                                      duration: Duration(
+                                          milliseconds: 300 + (index * 50)),
+                                      curve: Curves.easeOutBack,
+                                      child: _buildTemplateCard(
+                                        template['title'] ?? '',
+                                        template['body'] ?? '',
+                                        index,
+                                        () {
+                                          Get.to(
+                                              () => EmailTemplateEditorScreen(
+                                                    selectedTemplate: template,
+                                                  ));
+                                        },
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(
+                                  height: 200.h,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.inbox_outlined,
+                                          size: 48.r,
+                                          color: AppTheme.textTertiary,
+                                        ),
+                                        SizedBox(height: AppSpacing.sm),
+                                        Text(
+                                          'No templates found',
+                                          style: AppTheme.bodyMedium.copyWith(
+                                            color: AppTheme.textTertiary,
+                                          ),
+                                        ),
+                                        SizedBox(height: AppSpacing.xs),
+                                        Text(
+                                          'Try selecting a different category',
+                                          style: AppTheme.caption.copyWith(
+                                            color: AppTheme.textTertiary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                        ),
+
+                        SizedBox(height: AppSpacing.lg),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -979,7 +1036,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMyTemplateCard(Map<String, String> template, int index) {
+  Widget _buildMyTemplateCard(dynamic template, int index) {
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 600 + (index * 100)),
       tween: Tween<double>(begin: 0, end: 1),
@@ -994,9 +1051,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               onTapDown: (_) => {},
               onTapUp: (_) => {},
               onTap: () {
-                if (template.isNotEmpty) {
+                if (template != null) {
+                  // Convert dynamic template to Map<String, String> format expected by editor
+                  final templateData = {
+                    'title': template['subject']?.toString() ??
+                        template['title']?.toString() ??
+                        'Untitled',
+                    'body': template['body']?.toString() ?? '',
+                    'regards': template['regards']?.toString() ?? '',
+                    'category': template['category']?.toString() ?? 'Personal',
+                    'isCustom': 'true',
+                    'createdDate':
+                        template['createdAt']?.toString().substring(0, 10) ??
+                            template['createdDate']?.toString() ??
+                            DateTime.now().toString().substring(0, 10),
+                  };
                   Get.to(() => EmailTemplateEditorScreen(
-                        selectedTemplate: template,
+                        selectedTemplate: templateData,
                       ));
                 }
               },
@@ -1042,7 +1113,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Row(
                         children: [
                           Text(
-                            template['createdDate']!,
+                            template['createdAt']
+                                    ?.toString()
+                                    .substring(0, 10) ??
+                                template['createdDate']?.toString() ??
+                                DateTime.now().toString().substring(0, 10),
                             style: AppTheme.caption.copyWith(
                               color: AppTheme.textTertiary,
                               fontSize: 9.sp,
@@ -1084,7 +1159,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ),
                       SizedBox(height: 12.h),
                       Text(
-                        template['title'] ?? 'Untitled',
+                        template['subject']?.toString() ??
+                            template['title']?.toString() ??
+                            'Untitled',
                         style: AppTheme.bodyMedium.copyWith(
                           fontWeight: FontWeight.w700,
                           color: AppTheme.textPrimary,
@@ -1096,7 +1173,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       SizedBox(height: 8.h),
                       Expanded(
                         child: Text(
-                          _getEmailPreview(template['body'] ?? ''),
+                          _getEmailPreview(template['body']?.toString() ?? ''),
                           style: AppTheme.caption.copyWith(
                             color: AppTheme.textSecondary,
                             height: 1.3,
@@ -1453,8 +1530,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Expanded(
                 child: GestureDetector(
                   onTap: () async {
-                    Navigator.of(context).pop();
-                    await controller.signOutGoogle();
+                    // Navigator.of(context).pop();
+                    await controller.logout();
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 12.h),

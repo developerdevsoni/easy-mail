@@ -1,12 +1,9 @@
-import 'package:easy_mail/view/home_screen.dart';
-// import 'package:easy_mail/view/intro_screen.dart'; // Removed onboarding screen
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-// import 'package:easy_mail/view/mailEditor_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'view/google_login_page.dart';
+import 'view/auth_wrapper.dart';
 import 'utils/app_theme.dart';
 
 Future<void> main() async {
@@ -35,8 +32,8 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      // 🚀 START WITH LOGIN: Users must explicitly login
-      child: GoogleLoginPage(), // 👈 REMOVED AUTO-LOGIN - START WITH LOGIN PAGE
+      // 🚀 AUTH WRAPPER: Checks login status and routes accordingly
+      child: AuthWrapper(), // 👈 SMART ROUTING - AUTO-LOGIN IF AUTHENTICATED
     );
   }
 }

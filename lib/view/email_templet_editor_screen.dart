@@ -1,9 +1,10 @@
-import 'package:easy_mail/view/discoverTemplete_screen.dart';
 import 'package:easy_mail/utils/app_theme.dart';
 import 'package:easy_mail/widgets/modern_ui_components.dart';
+import 'package:easy_mail/controllers/template_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart'; // 👈 Required for Clipboard
+import 'package:get/get.dart';
 
 import 'package:url_launcher/url_launcher.dart'; // URL Launcher
 
@@ -18,43 +19,180 @@ class EmailTemplateEditorScreen extends StatefulWidget {
 }
 
 class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
+  final TemplateController templateController = Get.put(TemplateController());
   final toController = TextEditingController();
   final ccController = TextEditingController();
   final bccController = TextEditingController();
   final subjectController = TextEditingController();
   final bodyController = TextEditingController();
+  final regardsController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
+    // Handle both null template and empty template cases
     if (widget.selectedTemplate != null) {
-      subjectController.text = widget.selectedTemplate!['title'] ?? '';
-      bodyController.text =
-          '${widget.selectedTemplate!['body'] ?? ''}\n\n${widget.selectedTemplate!['regards'] ?? ''}';
+      print(
+          "🔑 Selected Template: ${widget.selectedTemplate['title'] ?? widget.selectedTemplate['subject'] ?? 'Untitled'}");
+
+      // Handle both 'title' and 'subject' fields for compatibility
+      final templateTitle = widget.selectedTemplate['title'] ??
+          widget.selectedTemplate['subject'] ??
+          '';
+
+      subjectController.text = templateTitle;
+
+      // Combine body and regards if they exist
+      final templateBody = widget.selectedTemplate['body'] ?? '';
+      final templateRegards = widget.selectedTemplate['regards'] ?? '';
+
+      if (templateBody.isNotEmpty || templateRegards.isNotEmpty) {
+        bodyController.text =
+            templateBody.isNotEmpty && templateRegards.isNotEmpty
+                ? '$templateBody\n\n$templateRegards'
+                : templateBody + templateRegards;
+      }
+    } else {
+      print("🔑 No template selected - Starting with empty editor");
     }
 
     _pasteEmailFromClipboard(); // 👈 Automatically fetch clipboard Gmail
   }
 
   Future<void> _pasteEmailFromClipboard() async {
-    final clipboardData = "";
-    await Clipboard.getData('text/plain');
+    try {
+      final clipboardData = await Clipboard.getData('text/plain');
 
-    // if (clipboardData != null) {
-    //   final text = clipboardData.text ?? '';
-    //   final emailRegex = RegExp(r'\b[\w._%+-]+@[\w.-]+\.\w{2,}\b');
-    //   final match = emailRegex.firstMatch(text);
+      if (clipboardData != null && clipboardData.text != null) {
+        final text = clipboardData.text!;
+        final emailRegex = RegExp(r'\b[\w._%+-]+@[\w.-]+\.\w{2,}\b');
+        final match = emailRegex.firstMatch(text);
 
-    //   if (match != null) {
-    //     setState(() {
-    //       toController.text = match.group(0)!;
-    //     });
-    //   }
-    // }
+        if (match != null && toController.text.isEmpty) {
+          setState(() {
+            toController.text = match.group(0)!;
+          });
+        }
+      }
+    } catch (e) {
+      // Clipboard access may fail, ignore silently
+      print('Clipboard access failed: $e');
+    }
+  }
+
+  Future<void> _saveCurrentTemplate() async {
+    try {
+      // Extract body and regards from the body text
+      final fullBody = bodyController.text.trim();
+      String body = fullBody;
+      String regards = '';
+
+      // Try to separate body and regards (assuming regards is at the end)
+      final regardsPattern = RegExp(r'\n\n([A-Za-z\s,]+)$');
+      final match = regardsPattern.firstMatch(fullBody);
+
+      if (match != null) {
+        regards = match.group(1) ?? '';
+        body = fullBody.substring(0, fullBody.length - regards.length).trim();
+      }
+
+      // Prepare template data according to API requirements
+      final templateData = {
+        'name': subjectController.text.trim().isEmpty
+            ? 'Untitled Template'
+            : subjectController.text.trim(), // API expects 'name' field
+        'subject': subjectController.text.trim().isEmpty
+            ? 'No Subject'
+            : subjectController.text.trim(), // API expects 'subject' field
+        'body': body.isEmpty ? 'Empty content' : body,
+        'regards': regards.trim().isEmpty ? 'Best regards' : regards.trim(),
+        'tags': widget.selectedTemplate != null
+            ? ['edited']
+            : ['new'], // Tag appropriately
+        'isFavorite': false, // Optional favorite flag
+      };
+
+      final success =
+          await templateController.createPersonalTemplate(templateData);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Template saved successfully!'),
+            backgroundColor: AppTheme.successGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error saving template: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save template'),
+          backgroundColor: AppTheme.errorRed,
+        ),
+      );
+    }
+  }
+
+  Future<void> _saveAsDraft() async {
+    try {
+      // Extract body and regards from the body text
+      final fullBody = bodyController.text.trim();
+      String body = fullBody;
+      String regards = '';
+
+      // Try to separate body and regards (assuming regards is at the end)
+      final regardsPattern = RegExp(r'\n\n([A-Za-z\s,]+)$');
+      final match = regardsPattern.firstMatch(fullBody);
+
+      if (match != null) {
+        regards = match.group(1) ?? '';
+        body = fullBody.substring(0, fullBody.length - regards.length).trim();
+      }
+
+      // Prepare template data according to API requirements for draft
+      final templateData = {
+        'name': subjectController.text.trim().isEmpty
+            ? 'Draft Template'
+            : '${subjectController.text.trim()} (Draft)', // API expects 'name' field
+        'subject': subjectController.text.trim().isEmpty
+            ? 'Draft Subject'
+            : subjectController.text.trim(), // API expects 'subject' field
+        'body': body.isEmpty ? 'Draft content...' : body,
+        'regards': regards.isEmpty ? 'Best regards' : regards,
+        'tags': widget.selectedTemplate != null
+            ? ['draft', 'edited']
+            : ['draft', 'new'], // Tag as draft
+        'isFavorite': false, // Optional favorite flag
+      };
+
+      final success =
+          await templateController.createPersonalTemplate(templateData);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Draft saved successfully!'),
+            backgroundColor: AppTheme.successGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error saving draft: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save draft'),
+          backgroundColor: AppTheme.errorRed,
+        ),
+      );
+    }
   }
 
   Future<void> _launchMailClient() async {
+    // First save the current template as a regular template
+    // await _saveCurrentTemplate();
+
     final to = Uri.encodeComponent(toController.text.trim());
     final cc = Uri.encodeComponent(ccController.text.trim());
     final bcc = Uri.encodeComponent(bccController.text.trim());
@@ -117,7 +255,7 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
           ),
         ),
         title: Text(
-          'Email Editor',
+          widget.selectedTemplate != null ? 'Edit Template' : 'New Email',
           style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.w600),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
@@ -185,17 +323,21 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                           ],
                         ),
                         SizedBox(height: AppSpacing.sm),
-                        
-                        _buildEmailField("To", toController, Icons.person_outline_rounded),
-                        _buildEmailField("CC", ccController, Icons.people_outline_rounded),
-                        _buildEmailField("BCC", bccController, Icons.visibility_off_outlined),
-                        _buildEmailField("Subject", subjectController, Icons.subject_rounded, isLastField: true),
+                        _buildEmailField(
+                            "To", toController, Icons.person_outline_rounded),
+                        _buildEmailField(
+                            "CC", ccController, Icons.people_outline_rounded),
+                        _buildEmailField("BCC", bccController,
+                            Icons.visibility_off_outlined),
+                        _buildEmailField(
+                            "Subject", subjectController, Icons.subject_rounded,
+                            isLastField: true),
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: AppSpacing.sm),
-                  
+
                   // 📝 COMPACT EMAIL BODY SECTION
                   ModernCard(
                     child: Column(
@@ -221,7 +363,8 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 6.w, vertical: 2.h),
                               decoration: BoxDecoration(
                                 color: AppTheme.backgroundGray,
                                 borderRadius: BorderRadius.circular(4.r),
@@ -238,7 +381,6 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                           ],
                         ),
                         SizedBox(height: AppSpacing.sm),
-                        
                         Container(
                           width: double.infinity,
                           constraints: BoxConstraints(minHeight: 200.h),
@@ -260,7 +402,9 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                               fontWeight: FontWeight.w400,
                             ),
                             decoration: InputDecoration(
-                              hintText: "Compose your email...",
+                              hintText: widget.selectedTemplate != null
+                                  ? "Edit your email content..."
+                                  : "Compose your email...",
                               hintStyle: AppTheme.bodySmall.copyWith(
                                 color: AppTheme.textTertiary,
                               ),
@@ -275,9 +419,9 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: AppSpacing.sm),
-                  
+
                   // 🛠️ COMPACT QUICK ACTIONS
                   ModernCard(
                     child: Column(
@@ -293,7 +437,6 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                           maxLines: 1,
                         ),
                         SizedBox(height: AppSpacing.xs),
-                        
                         Row(
                           children: [
                             Expanded(
@@ -301,14 +444,8 @@ class _EmailTemplateEditorScreenState extends State<EmailTemplateEditorScreen> {
                                 'Save Draft',
                                 Icons.save_outlined,
                                 AppTheme.textSecondary,
-                                () {
-                                  // TODO: Save draft
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Draft saved'),
-                                      backgroundColor: AppTheme.successGreen,
-                                    ),
-                                  );
+                                () async {
+                                  await _saveAsDraft();
                                 },
                               ),
                             ),
@@ -324,7 +461,8 @@ Subject: ${subjectController.text}
 
 ${bodyController.text}
                                   ''';
-                                  Clipboard.setData(ClipboardData(text: fullEmail));
+                                  Clipboard.setData(
+                                      ClipboardData(text: fullEmail));
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Copied to clipboard'),
@@ -354,7 +492,7 @@ ${bodyController.text}
               ),
             ),
           ),
-          
+
           // 🚀 COMPACT SEND SECTION
           Container(
             width: double.infinity,
@@ -387,17 +525,45 @@ ${bodyController.text}
                       SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
-                          'This will open your default email client',
-                          style: AppTheme.bodySmall,
+                          _canSendEmail()
+                              ? 'This will open your default email client'
+                              : 'Fill in To, Subject, and Body to send email',
+                          style: AppTheme.bodySmall.copyWith(
+                            color: _canSendEmail()
+                                ? AppTheme.textSecondary
+                                : AppTheme.errorRed,
+                          ),
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                          maxLines: 2,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: AppSpacing.xs),
-                  
+
+                  // Save Template Button
                   ModernButton(
+                    backgroundColor: AppTheme.secondaryTeal,
+                    text: widget.selectedTemplate != null
+                        ? 'Update Template'
+                        : 'Save as Template',
+                    icon: Icon(
+                      widget.selectedTemplate != null
+                          ? Icons.update_rounded
+                          : Icons.save_rounded,
+                      color: AppTheme.surfaceWhite,
+                      size: 14.r,
+                    ),
+                    minimumSize: Size(double.infinity, 42.h),
+                    onPressed: () async {
+                      _canSendEmail() ? await _saveCurrentTemplate() : null;
+                    },
+                  ),
+
+                  SizedBox(height: AppSpacing.xs),
+
+                  ModernButton(
+                    backgroundColor: AppTheme.primaryBlue,
                     text: 'Send Email',
                     icon: Icon(
                       Icons.send_rounded,
@@ -416,7 +582,9 @@ ${bodyController.text}
     );
   }
 
-  Widget _buildEmailField(String label, TextEditingController controller, IconData icon, {bool isLastField = false}) {
+  Widget _buildEmailField(
+      String label, TextEditingController controller, IconData icon,
+      {bool isLastField = false}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -457,7 +625,8 @@ ${bodyController.text}
                 ),
                 decoration: InputDecoration(
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.r),
                     borderSide: BorderSide(color: AppTheme.cardGray),
@@ -468,10 +637,14 @@ ${bodyController.text}
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.r),
-                    borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+                    borderSide:
+                        BorderSide(color: AppTheme.primaryBlue, width: 2),
                   ),
-                  hintText: label == "Subject" ? "Enter email subject" : "Enter email address",
-                  hintStyle: AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
+                  hintText: label == "Subject"
+                      ? "Enter email subject"
+                      : "Enter email address",
+                  hintStyle:
+                      AppTheme.bodySmall.copyWith(color: AppTheme.textTertiary),
                   filled: true,
                   fillColor: AppTheme.backgroundGray,
                 ),
@@ -483,8 +656,9 @@ ${bodyController.text}
       ],
     );
   }
-  
-  Widget _buildQuickAction(String label, IconData icon, Color color, VoidCallback onTap) {
+
+  Widget _buildQuickAction(
+      String label, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -518,13 +692,13 @@ ${bodyController.text}
       ),
     );
   }
-  
+
   bool _canSendEmail() {
-    return toController.text.trim().isNotEmpty && 
-           subjectController.text.trim().isNotEmpty &&
-           bodyController.text.trim().isNotEmpty;
+    return toController.text.trim().isNotEmpty &&
+        subjectController.text.trim().isNotEmpty &&
+        bodyController.text.trim().isNotEmpty;
   }
-  
+
   void _showClearConfirmation() {
     showDialog(
       context: context,
@@ -558,6 +732,7 @@ ${bodyController.text}
               ),
             ),
             ModernButton(
+              backgroundColor: AppTheme.secondaryTeal,
               text: 'Clear All',
               variant: ButtonVariant.secondary,
               onPressed: () {

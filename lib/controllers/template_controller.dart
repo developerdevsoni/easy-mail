@@ -5,7 +5,7 @@ import '../services/api_repository.dart';
 class TemplateController extends GetxController {
   var isLoading = false.obs;
   var globalTemplates = [].obs;
-  var personalTemplates = [].obs;
+  var personalTemplates = <dynamic>[].obs;
   var favoriteTemplates = [].obs;
   var popularTemplates = [].obs;
 
@@ -189,10 +189,24 @@ class TemplateController extends GetxController {
       isLoading.value = true;
 
       final result = await ApiRepository.getPersonalTemplates();
+      print("🔄 Personal Templates API Response: $result");
 
       if (result['success']) {
-        personalTemplates.value = result['data'] ?? [];
+        // Handle both cases: data as List or data as Map containing templates
+        final data = result['data'];
+        if (data is List) {
+          personalTemplates.value = data;
+        } else if (data is Map && data.containsKey('templates')) {
+          personalTemplates.value = data['templates'] ?? [];
+        } else if (data is Map && data.containsKey('data')) {
+          personalTemplates.value = data['data'] ?? [];
+        } else {
+          personalTemplates.value = data != null ? [data] : [];
+        }
+        print(
+            "✅ Personal Templates loaded: ${personalTemplates.length} templates");
       } else {
+        personalTemplates.value = [];
         Get.snackbar(
           "Personal Failed",
           result['message'] ?? "Failed to get personal templates",
@@ -201,6 +215,8 @@ class TemplateController extends GetxController {
         );
       }
     } catch (e) {
+      personalTemplates.value = [];
+      print("❌ Error getting personal templates: $e");
       Get.snackbar(
         "Personal Error",
         e.toString(),
