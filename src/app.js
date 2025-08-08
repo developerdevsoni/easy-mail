@@ -10,6 +10,9 @@ require("dotenv").config()
 // Import Swagger specs
 const swaggerSpecs = require("./config/swagger.config")
 
+// Import logging middleware
+const { loggerMiddleware, errorLogger } = require("./middleware/logger.middleware")
+
 // Import routes
 const authRoutes = require("./routes/auth.route")
 const personalTemplateRoutes = require("./routes/personalTemplate.route")
@@ -25,6 +28,9 @@ app.use(cors("*"))
 
 // Initialize passport
 app.use(passport.initialize())
+
+// Logging middleware
+app.use(loggerMiddleware)
 
 // Database connection
 mongoose
@@ -64,6 +70,7 @@ app.use("/api/global-templates", globalTemplateRoutes)
 app.use("/api/mail", mailRoutes)
 
 // Error handling middleware
+app.use(errorLogger) // Add error logging before the main error handler
 app.use((err, req, res, next) => {
    console.error("Error:", err)
    return ResponseHandler.internalError(

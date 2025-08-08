@@ -1,11 +1,7 @@
 const User = require('../models/user.model');
 const { generateToken } = require('../middleware/auth.middleware');
 const bcrypt = require('bcryptjs');
-const { OAuth2Client } = require('google-auth-library');
 const ResponseHandler = require('../utils/responseHandler');
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // Register with email and password
 const register = async (req, res) => {
@@ -90,74 +86,59 @@ const login = async (req, res) => {
    }
 };
 
-// Login/Register with Google ID token (frontend flow)
-const loginWithGoogleToken = async (req, res) => {
+// Store Google user data (frontend already handled Google auth)
+const storeGoogleUser = async (req, res) => {
    try {
-      const { idToken } = req.body;
-      if (!idToken) {
-         return ResponseHandler.badRequest(res, 'Google ID token is required');
+      const { googleId, email, name, photoUrl } = req.body;
+
+      // Validate required fields
+      if (!googleId || !email || !name) {
+         return ResponseHandler.badRequest(res, 'Google ID, email, and name are required');
       }
 
-      // Verify token with Google
-      const ticket = await googleClient.verifyIdToken({
-         idToken,
-         audience: GOOGLE_CLIENT_ID
-      });
-      const payload = ticket.getPayload();
-      if (!payload) {
-         return ResponseHandler.unauthorized(res, 'Invalid Google token');
-      }
-
-      // Find or create user
-      let user = await User.findOne({ googleId: payload.sub });
+      // Find existing user by Google ID first
+      let user = await User.findOne({ googleId });
+      
       if (!user) {
          // Check if user exists with same email
-         user = await User.findOne({ email: payload.email });
+         user = await User.findOne({ email: email.toLowerCase() });
+         
          if (user) {
-            user.googleId = payload.sub;
+            // Update existing user with Google ID
+            user.googleId = googleId;
             user.loginMethod = 'google';
-            user.photoUrl = payload.picture;
-            user.isEmailVerified = payload.email_verified;
+            user.photoUrl = photoUrl;
+            user.isEmailVerified = true;
+            user.lastLogin = new Date();
             await user.save();
          } else {
+            // Create new Google user
             user = new User({
-               googleId: payload.sub,
-               email: payload.email,
-               name: payload.name,
-               photoUrl: payload.picture,
+               googleId,
+               email: email.toLowerCase(),
+               name,
+               photoUrl,
                loginMethod: 'google',
-               isEmailVerified: payload.email_verified
+               isEmailVerified: true
             });
             await user.save();
          }
       } else {
+         // Update last login for existing Google user
          user.lastLogin = new Date();
          await user.save();
       }
 
-      // Issue JWT
+      // Generate JWT token
       const token = generateToken(user._id);
+      
       return ResponseHandler.token(res, 'Google login successful', {
          user: user.getPublicProfile(),
          token
       });
    } catch (error) {
-      console.error('Google login error:', error);
+      console.error('Google user storage error:', error);
       return ResponseHandler.internalError(res, 'Google login failed', error.message);
-   }
-};
-
-// Google OAuth callback
-const googleAuthCallback = async (req, res) => {
-   try {
-      const user = req.user;
-      const token = generateToken(user._id);
-
-      // Redirect to frontend with token
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user.getPublicProfile()))}`);
-   } catch (error) {
-      console.error('Google auth callback error:', error);
-      res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/error`);
    }
 };
 
@@ -210,9 +191,8 @@ const logout = async (req, res) => {
 module.exports = {
    register,
    login,
-   googleAuthCallback,
+   storeGoogleUser,
    getProfile,
    updateProfile,
-   logout,
-   loginWithGoogleToken
+   logout
 };
